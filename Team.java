@@ -40,139 +40,287 @@ public class Team {
     private int round4Ballot1PD;
     private int round4Ballot2PD;
     private List impermissibleMatches;
-
+/**
+ * Returns the int team number value of the invoking Team
+ * @return the team number of the Team object on which the method is called
+ */
     public int getTeamNumber() {
         return teamNumber;
     }
-
+/**
+ * Sets the team number of the calling object to the specified int value
+ * @param teamNumber the team number to set the team to
+ */
     public void setTeamNumber(int teamNumber) {
         this.teamNumber = teamNumber;
     }
-
+/**
+ * Returns the team name of the invoking Team in String form
+ * @return the name of the Team that invokes the method
+ */
     public String getTeamName() {
         return teamName;
     }
-
+/**
+ * Sets the team name to specified String
+ * @param teamName the team name to which the Team will be set
+ */
     public void setTeamName(String teamName) {
         this.teamName = teamName;
     }
-
+/**
+ * Returns true if the Team was plaintiff round 1; false if the Team was defendant round 1
+ * @return whether during round 1 the invoking Team was plaintiff
+ */
     public Boolean getRound1Plaintiff() {
         return round1Plaintiff;
     }
-
+/**
+ * Sets the side the invoking team competed on during round 1.
+ * Should be true if they were plaintiff and false if they were defendant
+ * @param round1Plaintiff set true if plaintiff; false if defendant
+ */
     public void setRound1Plaintiff(Boolean round1Plaintiff) {
         this.round1Plaintiff = round1Plaintiff;
     }
-
+/**
+ * Returns true if the Team was plaintiff round 3; false if the Team was defendant round 3
+ * @return whether during round 3 the invoking Team was plaintiff
+ */
     public Boolean getRound3Plaintiff() {
         return round3Plaintiff;
     }
-
+/**
+ * Sets the side the invoking team competed on during round 3.
+ * Should be true if they were plaintiff and false if they were defendant
+ * @param round3Plaintiff set true if plaintiff; false if defendant
+ */
     public void setRound3Plaintiff(Boolean round3Plaintiff) {
         this.round3Plaintiff = round3Plaintiff;
     }
-
+/**
+ * Returns the team number of the team the invoking Team faced during round 1.
+ * Note that this does not return the Team object of the opposing team. Rather 
+ * it returns the int team number, which may then be used to look up the opposing
+ * Team object, if needed
+ * @return int team number of the team faced round 1
+ */
     public int getRound1Opponent() {
         return round1Opponent;
     }
-
+/**
+ * Sets the team number of the round 1 opponent of the invoking Team to the specified int
+ * @param round1Opponent team number of round 1 opponent
+ */
     public void setRound1Opponent(int round1Opponent) {
         this.round1Opponent = round1Opponent;
     }
-
+/**
+ * Returns the team number of the team the invoking Team faced during round 2.
+ * Note that this does not return the Team object of the opposing team. Rather 
+ * it returns the int team number, which may then be used to look up the opposing
+ * Team object, if needed
+ * @return int team number of the team faced round 2
+ */
     public int getRound2Opponent() {
         return round2Opponent;
     }
-
+/**
+ * Sets the team number of the round 2 opponent of the invoking Team to the specified int
+ * @param round2Opponent team number of round 2 opponent
+ */
     public void setRound2Opponent(int round2Opponent) {
         this.round2Opponent = round2Opponent;
     }
-
+/**
+ * Returns the team number of the team the invoking Team faced during round 3.
+ * Note that this does not return the Team object of the opposing team. Rather 
+ * it returns the int team number, which may then be used to look up the opposing
+ * Team object, if needed
+ * @return int team number of the team faced round 3
+ */
     public int getRound3Opponent() {
         return round3Opponent;
     }
-
+/**
+ * Sets the team number of the round 3 opponent of the invoking Team to the specified int
+ * @param round3Opponent team number of round 3 opponent
+ */
     public void setRound3Opponent(int round3Opponent) {
         this.round3Opponent = round3Opponent;
     }
-
+/**
+ * Returns the team number of the team the invoking Team faced during round 4.
+ * Note that this does not return the Team object of the opposing team. Rather 
+ * it returns the int team number, which may then be used to look up the opposing
+ * Team object, if needed
+ * @return int team number of the team faced round 4
+ */
     public int getRound4Opponent() {
         return round4Opponent;
     }
-
+/**
+ * Sets the team number of the round 4 opponent of the invoking Team to the specified int
+ * @param round4Opponent team number of round 4 opponent
+ */
     public void setRound4Opponent(int round4Opponent) {
         this.round4Opponent = round4Opponent;
     }
-
+/**
+ * Returns the invoking Team's point differential on one of the round 1 ballots.
+ * Invoking team means that if the team won, the returned value will be positive,
+ * and if the team lost, the value will be negative. Ties are zeros.
+ * @return point differential on the first of the two round 1 ballots
+ */
     public int getRound1Ballot1PD() {
         return round1Ballot1PD;
     }
-
+/**
+ * Sets the invoking Team's point differential for one of the round 1 ballots.
+ * Invoking team means that if the team won, the value should be positive,
+ * and if the team lost, the value should be negative. Ties are zeros.
+ * @param round1Ballot1PD point differential on the first of the two round 1 ballots
+ */
     public void setRound1Ballot1PD(int round1Ballot1PD) {
         this.round1Ballot1PD = round1Ballot1PD;
     }
-
+/**
+ * Returns the invoking Team's point differential on one of the round 1 ballots.
+ * Invoking team means that if the team won, the returned value will be positive,
+ * and if the team lost, the value will be negative. Ties are zeros.
+ * @return point differential on the second of the two round 1 ballots
+ */
     public int getRound1Ballot2PD() {
         return round1Ballot2PD;
     }
-
+/**
+ * Sets the invoking Team's point differential for one of the round 1 ballots.
+ * Invoking team means that if the team won, the value should be positive,
+ * and if the team lost, the value should be negative. Ties are zeros.
+ * @param round1Ballot2PD point differential on the second of the two round 1 ballots
+ */
     public void setRound1Ballot2PD(int round1Ballot2PD) {
         this.round1Ballot2PD = round1Ballot2PD;
     }
-
+/**
+ * Returns the invoking Team's point differential on one of the round 2 ballots.
+ * Invoking team means that if the team won, the returned value will be positive,
+ * and if the team lost, the value will be negative. Ties are zeros.
+ * @return point differential on the first of the two round 2 ballots
+ */
     public int getRound2Ballot1PD() {
         return round2Ballot1PD;
     }
-
+/**
+ * Sets the invoking Team's point differential for one of the round 2 ballots.
+ * Invoking team means that if the team won, the value should be positive,
+ * and if the team lost, the value should be negative. Ties are zeros.
+ * @param round2Ballot1PD point differential on the first of the two round 2 ballots
+ */
     public void setRound2Ballot1PD(int round2Ballot1PD) {
         this.round2Ballot1PD = round2Ballot1PD;
     }
-
+/**
+ * Returns the invoking Team's point differential on one of the round 2 ballots.
+ * Invoking team means that if the team won, the returned value will be positive,
+ * and if the team lost, the value will be negative. Ties are zeros.
+ * @return point differential on the second of the two round 2 ballots
+ */
     public int getRound2Ballot2PD() {
         return round2Ballot2PD;
     }
-
+/**
+ * Sets the invoking Team's point differential for one of the round 2 ballots.
+ * Invoking team means that if the team won, the value should be positive,
+ * and if the team lost, the value should be negative. Ties are zeros.
+ * @param round2Ballot2PD point differential on the second of the two round 2 ballots
+ */
     public void setRound2Ballot2PD(int round2Ballot2PD) {
         this.round2Ballot2PD = round2Ballot2PD;
     }
-
+/**
+ * Returns the invoking Team's point differential on one of the round 3 ballots.
+ * Invoking team means that if the team won, the returned value will be positive,
+ * and if the team lost, the value will be negative. Ties are zeros.
+ * @return point differential on the first of the two round 3 ballots
+ */
     public int getRound3Ballot1PD() {
         return round3Ballot1PD;
     }
-
+/**
+ * Sets the invoking Team's point differential for one of the round 3 ballots.
+ * Invoking team means that if the team won, the value should be positive,
+ * and if the team lost, the value should be negative. Ties are zeros.
+ * @param round3Ballot1PD point differential on the first of the two round 3 ballots
+ */
     public void setRound3Ballot1PD(int round3Ballot1PD) {
         this.round3Ballot1PD = round3Ballot1PD;
     }
-
+/**
+ * Returns the invoking Team's point differential on one of the round 3 ballots.
+ * Invoking team means that if the team won, the returned value will be positive,
+ * and if the team lost, the value will be negative. Ties are zeros.
+ * @return point differential on the second of the two round 3 ballots
+ */
     public int getRound3Ballot2PD() {
         return round3Ballot2PD;
     }
-
+/**
+ * Sets the invoking Team's point differential for one of the round 3 ballots.
+ * Invoking team means that if the team won, the value should be positive,
+ * and if the team lost, the value should be negative. Ties are zeros.
+ * @param round3Ballot2PD point differential on the second of the two round 3 ballots
+ */
     public void setRound3Ballot2PD(int round3Ballot2PD) {
         this.round3Ballot2PD = round3Ballot2PD;
     }
-
+/**
+ * Returns the invoking Team's point differential on one of the round 4 ballots.
+ * Invoking team means that if the team won, the returned value will be positive,
+ * and if the team lost, the value will be negative. Ties are zeros.
+ * @return point differential on the first of the two round 4 ballots
+ */
     public int getRound4Ballot1PD() {
         return round4Ballot1PD;
     }
-
+/**
+ * Sets the invoking Team's point differential for one of the round 4 ballots.
+ * Invoking team means that if the team won, the value should be positive,
+ * and if the team lost, the value should be negative. Ties are zeros.
+ * @param round4Ballot1PD point differential on the first of the two round 4 ballots
+ */
     public void setRound4Ballot1PD(int round4Ballot1PD) {
         this.round4Ballot1PD = round4Ballot1PD;
     }
-
+/**
+ * Returns the invoking Team's point differential on one of the round 4 ballots.
+ * Invoking team means that if the team won, the returned value will be positive,
+ * and if the team lost, the value will be negative. Ties are zeros.
+ * @return point differential on the second of the two round 4 ballots
+ */
     public int getRound4Ballot2PD() {
         return round4Ballot2PD;
     }
-
+/**
+ * Sets the invoking Team's point differential for one of the round 4 ballots.
+ * Invoking team means that if the team won, the value should be positive,
+ * and if the team lost, the value should be negative. Ties are zeros.
+ * @param round4Ballot2PD point differential on the second of the two round 4 ballots
+ */
     public void setRound4Ballot2PD(int round4Ballot2PD) {
         this.round4Ballot2PD = round4Ballot2PD;
     }
-
+/**
+ * Returns a List of the teams the invoking Team cannot be paired against.
+ * @return a List of all teams that cannot be faced
+ */
     public List getImpermissibleMatches() {
         return impermissibleMatches;
     }
-
+/**
+ * Sets the list of teams numbers that the invoking Team cannot face to the specified list
+ * @param impermissibleMatches List of teams the invoking team cannot face
+ */
     public void setImpermissibleMatches(List impermissibleMatches) {
         this.impermissibleMatches = impermissibleMatches;
     }
