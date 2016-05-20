@@ -1,0 +1,88 @@
+/*
+ * Copyright (C) 2016 captainbowtie
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package com.allenbarr.MockTrialTabulation;
+
+/**
+ *
+ * @author captainbowtie
+ */
+public class Member {
+    private int[] plaintiffAttorneyRanks = {0,0,0,0};
+    private int[] plaintiffWitnessRanks = {0,0,0,0};
+    private int[] defenseAttorneyRanks = {0,0,0,0};
+    private int[] defenseWitnessRanks = {0,0,0,0};
+/**
+ * Returns a four int array of the amount of points the Member received as a plaintiff attorney from each ballot
+ * @return a four int array, with the ranks from each ballot where the Member was a plaintiff attorney
+ */
+    public int[] getPlaintiffAttorneyRanks() {
+        return plaintiffAttorneyRanks;
+    }
+/**
+ * Sets the ranks of the invoking Member for plaintiff attorney ranks.
+ * The passed array should be four ints long.
+ * @param plaintiffAttorneyRanks four int array with ranks from each ballot
+ */
+    public void setPlaintiffAttorneyRanks(int[] plaintiffAttorneyRanks) {
+        this.plaintiffAttorneyRanks = plaintiffAttorneyRanks;
+    }
+/**
+ * Returns a for int array of the amount of points the Member received as a plaintiff witness from each ballot
+ * @return a four int array, with the ranks from each ballot where the Member was a plaintiff witness
+ */
+    public int[] getPlaintiffWitnessRanks() {
+        return plaintiffWitnessRanks;
+    }
+/**
+ * Sets the ranks of the invoking Member for plaintiff witness ranks.
+ * The passed array should be four ints long.
+ * @param plaintiffWitnessRanks four int array with ranks from each ballot
+ */
+    public void setPlaintiffWitnessRanks(int[] plaintiffWitnessRanks) {
+        this.plaintiffWitnessRanks = plaintiffWitnessRanks;
+    }
+/**
+ * Returns a for int array of the amount of points the Member received as a defense attorney from each ballot
+ * @return a four int array, with the ranks from each ballot where the Member was a defense attorney
+ */
+    public int[] getDefenseAttorneyRanks() {
+        return defenseAttorneyRanks;
+    }
+/**
+ * Sets the ranks of the invoking Member for defense attorney ranks.
+ * The passed array should be four ints long.
+ * @param defenseAttorneyRanks four int array with ranks from each ballot
+ */
+    public void setDefenseAttorneyRanks(int[] defenseAttorneyRanks) {
+        this.defenseAttorneyRanks = defenseAttorneyRanks;
+    }
+/**
+ * Returns a for int array of the amount of points the Member received as a defense witness from each ballot
+ * @return a four int array, with the ranks from each ballot where the Member was a defense witness
+ */
+    public int[] getDefenseWitnessRanks() {
+        return defenseWitnessRanks;
+    }
+/**
+ * Sets the ranks of the invoking Member for defense witness ranks.
+ * The passed array should be four ints long.
+ * @param defenseWitnessRanks four int array with ranks from each ballot
+ */
+    public void setDefenseWitnessRanks(int[] defenseWitnessRanks) {
+        this.defenseWitnessRanks = defenseWitnessRanks;
+    }
+}
