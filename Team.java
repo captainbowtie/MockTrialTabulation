@@ -16,6 +16,7 @@
  */
 package com.allenbarr.MockTrialTabulation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,6 +41,19 @@ public class Team {
     private int round4Ballot1PD;
     private int round4Ballot2PD;
     private List impermissibleMatches;
+    private final List<Member> members;
+    /**
+     * Creates a new Team object with the specified teamNumber, teamName, and list of impermisible matches
+     * @param teamNumber the team's number for the tournament
+     * @param teamName the team's name
+     * @param impermissibleMatches List of all team numbers the Team cannot face
+     */
+    public Team(int teamNumber, String teamName, List impermissibleMatches){
+        this.teamNumber=teamNumber;
+        this.teamName=teamName;
+        this.impermissibleMatches=impermissibleMatches;
+        members = new ArrayList<>();
+    }
 /**
  * Returns the int team number value of the invoking Team
  * @return the team number of the Team object on which the method is called
@@ -323,5 +337,27 @@ public class Team {
  */
     public void setImpermissibleMatches(List impermissibleMatches) {
         this.impermissibleMatches = impermissibleMatches;
+    }  
+    /**
+     * Returns the List of Members, in Member object form, that are on the team
+     * @return List of Member objects within the team
+     */
+    public List getMembers() {
+        return members;
+    }
+/**
+ * Adds a new member to the team member list with the specified name
+ * @param name Name of the team member to be added to the team member list
+ */
+    public void addMember(String name){
+        members.add(new Member(name));
+    }
+    /**
+     * Returns the Member object from the team Member ArrayList at the specified index
+     * @param i Index number of the member to be returned
+     * @return The member object at the specified index
+     */
+    public Member getMember(int i){
+        return members.get(i);
     }
 }

@@ -21,10 +21,19 @@ package com.allenbarr.MockTrialTabulation;
  * @author captainbowtie
  */
 public class Member {
+    private String name;
     private int[] plaintiffAttorneyRanks = {0,0,0,0};
     private int[] plaintiffWitnessRanks = {0,0,0,0};
     private int[] defenseAttorneyRanks = {0,0,0,0};
     private int[] defenseWitnessRanks = {0,0,0,0};
+/**
+ * Creates a new member with the specified name
+ * @param name name for the new team member
+ */
+    public Member(String name){
+        this.name = name;
+    }
+    
 /**
  * Returns a four int array of the amount of points the Member received as a plaintiff attorney from each ballot
  * @return a four int array, with the ranks from each ballot where the Member was a plaintiff attorney
@@ -85,4 +94,19 @@ public class Member {
     public void setDefenseWitnessRanks(int[] defenseWitnessRanks) {
         this.defenseWitnessRanks = defenseWitnessRanks;
     }
+/**
+ * Returns the name of the invoking member
+ * @return member name
+ */
+    public String getName() {
+        return name;
+    }
+/**
+ * Sets the name of invoking member to the specified string
+ * @param name String to set the member's name to
+ */
+    public void setName(String name) {
+        this.name = name;
+    }
+    
 }
