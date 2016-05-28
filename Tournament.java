@@ -59,4 +59,20 @@ public class Tournament {
     public void writeToCSV(File saveLocation){
         // @TODO determine CSV format and then write an exporter
     }
+    /**
+     * Returns the List of teams competing at the tournament
+     * @return teams competing at the tournament in List form
+     */
+    public List<Team> getTeams() {
+        return teams;
+    }
+    /**
+     * Returns the Team at the specified index from the List of teams
+     * @param index
+     * @return Team at the specified index from the Team List
+     */
+    public Team getTeam(int index){
+        return teams.get(index);
+    }
+    
 }

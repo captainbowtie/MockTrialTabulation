@@ -21,7 +21,7 @@ package com.allenbarr.MockTrialTabulation;
  * @author captainbowtie
  */
 public class Member {
-    private String name;
+    private String name = "N/A";
     private int[] plaintiffAttorneyRanks = {0,0,0,0};
     private int[] plaintiffWitnessRanks = {0,0,0,0};
     private int[] defenseAttorneyRanks = {0,0,0,0};
@@ -107,6 +107,18 @@ public class Member {
  */
     public void setName(String name) {
         this.name = name;
+    }
+    
+    public String toString(){
+        return (name+","+plaintiffAttorneyRanks[0]+","+plaintiffAttorneyRanks[1]
+                +","+plaintiffAttorneyRanks[2]+","+plaintiffAttorneyRanks[3]
+                +","+plaintiffWitnessRanks[0]+","+plaintiffWitnessRanks[1]
+                +","+plaintiffWitnessRanks[2]+","+plaintiffWitnessRanks[3]
+                +","+defenseAttorneyRanks[0]+","+defenseAttorneyRanks[1]
+                +","+defenseAttorneyRanks[2]+","+defenseAttorneyRanks[3]
+                +","+defenseWitnessRanks[0]+","+defenseWitnessRanks[1]
+                +","+defenseWitnessRanks[2]+","+defenseWitnessRanks[3]);
+        
     }
     
 }

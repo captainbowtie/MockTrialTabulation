@@ -24,23 +24,23 @@ import java.util.List;
  * @author captainbowtie
  */
 public class Team {
-    private int teamNumber;
-    private String teamName;
-    private Boolean round1Plaintiff;
-    private Boolean round3Plaintiff;
-    private int round1Opponent;
-    private int round2Opponent;
-    private int round3Opponent;
-    private int round4Opponent;
-    private int round1Ballot1PD;
-    private int round1Ballot2PD;
-    private int round2Ballot1PD;
-    private int round2Ballot2PD;
-    private int round3Ballot1PD;
-    private int round3Ballot2PD;
-    private int round4Ballot1PD;
-    private int round4Ballot2PD;
-    private List impermissibleMatches;
+    private int teamNumber = 0;
+    private String teamName = "N/A";
+    private boolean round1Plaintiff = true;
+    private boolean round3Plaintiff = true;
+    private int round1Opponent = 0;
+    private int round2Opponent = 0;
+    private int round3Opponent = 0;
+    private int round4Opponent = 0;
+    private int round1Ballot1PD = 141;
+    private int round1Ballot2PD = 141;
+    private int round2Ballot1PD = 141;
+    private int round2Ballot2PD = 141;
+    private int round3Ballot1PD = 141;
+    private int round3Ballot2PD = 141;
+    private int round4Ballot1PD = 141;
+    private int round4Ballot2PD = 141;
+    private final List<Integer> impermissibleMatches;
     private final List<Member> members;
     /**
      * Creates a new Team object with the specified teamNumber, teamName, and list of impermisible matches
@@ -86,7 +86,7 @@ public class Team {
  * Returns true if the Team was plaintiff round 1; false if the Team was defendant round 1
  * @return whether during round 1 the invoking Team was plaintiff
  */
-    public Boolean getRound1Plaintiff() {
+    public boolean getRound1Plaintiff() {
         return round1Plaintiff;
     }
 /**
@@ -94,14 +94,14 @@ public class Team {
  * Should be true if they were plaintiff and false if they were defendant
  * @param round1Plaintiff set true if plaintiff; false if defendant
  */
-    public void setRound1Plaintiff(Boolean round1Plaintiff) {
+    public void setRound1Plaintiff(boolean round1Plaintiff) {
         this.round1Plaintiff = round1Plaintiff;
     }
 /**
  * Returns true if the Team was plaintiff round 3; false if the Team was defendant round 3
  * @return whether during round 3 the invoking Team was plaintiff
  */
-    public Boolean getRound3Plaintiff() {
+    public boolean getRound3Plaintiff() {
         return round3Plaintiff;
     }
 /**
@@ -109,7 +109,7 @@ public class Team {
  * Should be true if they were plaintiff and false if they were defendant
  * @param round3Plaintiff set true if plaintiff; false if defendant
  */
-    public void setRound3Plaintiff(Boolean round3Plaintiff) {
+    public void setRound3Plaintiff(boolean round3Plaintiff) {
         this.round3Plaintiff = round3Plaintiff;
     }
 /**
@@ -332,11 +332,11 @@ public class Team {
         return impermissibleMatches;
     }
 /**
- * Sets the list of teams numbers that the invoking Team cannot face to the specified list
- * @param impermissibleMatches List of teams the invoking team cannot face
+ * Adds a team number to the list of teams the invoking Team cannot face
+ * @param impermissibleMatches Team number to add to list of impermissible matches
  */
-    public void setImpermissibleMatches(List impermissibleMatches) {
-        this.impermissibleMatches = impermissibleMatches;
+    public void addImpermissibleMatch(Integer impermissibleMatch) {
+        this.impermissibleMatches.add(impermissibleMatch);
     }  
     /**
      * Returns the List of Members, in Member object form, that are on the team
