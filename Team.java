@@ -33,14 +33,14 @@ public class Team {
     private int round2Opponent = 0;
     private int round3Opponent = 0;
     private int round4Opponent = 0;
-    private int round1Ballot1PD = 141;
-    private int round1Ballot2PD = 141;
-    private int round2Ballot1PD = 141;
-    private int round2Ballot2PD = 141;
-    private int round3Ballot1PD = 141;
-    private int round3Ballot2PD = 141;
-    private int round4Ballot1PD = 141;
-    private int round4Ballot2PD = 141;
+    private int round1Ballot1PD = 0;
+    private int round1Ballot2PD = 0;
+    private int round2Ballot1PD = 0;
+    private int round2Ballot2PD = 0;
+    private int round3Ballot1PD = 0;
+    private int round3Ballot2PD = 0;
+    private int round4Ballot1PD = 0;
+    private int round4Ballot2PD = 0;
     private final List<Integer> impermissibleMatches;
     private final List<Member> members;
 
@@ -52,11 +52,58 @@ public class Team {
      * @param teamName the team's name
      * @param impermissibleMatches List of all team numbers the Team cannot face
      */
-    public Team(int teamNumber, String teamName, List impermissibleMatches) {
+    public Team(int teamNumber, String teamName, List<Integer> impermissibleMatches) {
         this.teamNumber = teamNumber;
         this.teamName = teamName;
         this.impermissibleMatches = impermissibleMatches;
         members = new ArrayList<>();
+    }
+
+    /**
+     * Creates a new team object with all fields set based on data from the constructor.
+     * Intended for use when restoring a Team from a save file that contains all the fields
+     * @param teamNumber
+     * @param teamName
+     * @param round1Plaintiff
+     * @param round3Plaintiff
+     * @param round1Opponent
+     * @param round2Opponent
+     * @param round3Opponent
+     * @param round4Opponent
+     * @param round1Ballot1PD
+     * @param round1Ballot2PD
+     * @param round2Ballot1PD
+     * @param round2Ballot2PD
+     * @param round3Ballot1PD
+     * @param round3Ballot2PD
+     * @param round4Ballot1PD
+     * @param round4Ballot2PD
+     * @param impermissibleMatches
+     * @param members 
+     */
+    public Team(int teamNumber, String teamName, boolean round1Plaintiff, boolean round3Plaintiff,
+            int round1Opponent, int round2Opponent, int round3Opponent, int round4Opponent,
+            int round1Ballot1PD, int round1Ballot2PD, int round2Ballot1PD, int round2Ballot2PD,
+            int round3Ballot1PD, int round3Ballot2PD, int round4Ballot1PD, int round4Ballot2PD,
+            ArrayList<Integer> impermissibleMatches, ArrayList<Member> members) {
+        this.teamNumber = teamNumber;
+        this.teamName = teamName;
+        this.round1Plaintiff = round1Plaintiff;
+        this.round3Plaintiff = round3Plaintiff;
+        this.round1Opponent = round1Opponent;
+        this.round2Opponent = round2Opponent;
+        this.round3Opponent = round3Opponent;
+        this.round4Opponent = round4Opponent;
+        this.round1Ballot1PD = round1Ballot1PD;
+        this.round1Ballot2PD = round1Ballot2PD;
+        this.round2Ballot1PD = round2Ballot1PD;
+        this.round2Ballot2PD = round2Ballot2PD;
+        this.round3Ballot1PD = round3Ballot1PD;
+        this.round3Ballot2PD = round3Ballot2PD;
+        this.round4Ballot1PD = round4Ballot1PD;
+        this.round4Ballot2PD = round4Ballot2PD;
+        this.impermissibleMatches = impermissibleMatches;
+        this.members = members;
     }
 
     /**
@@ -232,9 +279,9 @@ public class Team {
      * @return point differential on the first of the two round 1 ballots
      */
     public int getRound1Ballot1PD() {
-        if(round1Ballot1PD<141){
+        if (round1Opponent != 0) {
             return round1Ballot1PD;
-        }else{
+        } else {
             return 0;
         }
     }
@@ -261,9 +308,9 @@ public class Team {
      * @return point differential on the second of the two round 1 ballots
      */
     public int getRound1Ballot2PD() {
-        if(round1Ballot2PD<141){
+        if (round1Opponent != 0) {
             return round1Ballot2PD;
-        }else{
+        } else {
             return 0;
         }
     }
@@ -290,9 +337,9 @@ public class Team {
      * @return point differential on the first of the two round 2 ballots
      */
     public int getRound2Ballot1PD() {
-        if(round2Ballot1PD<141){
+        if (round2Opponent != 0) {
             return round2Ballot1PD;
-        }else{
+        } else {
             return 0;
         }
     }
@@ -319,9 +366,9 @@ public class Team {
      * @return point differential on the second of the two round 2 ballots
      */
     public int getRound2Ballot2PD() {
-        if(round2Ballot2PD<141){
+        if (round2Opponent != 0) {
             return round2Ballot2PD;
-        }else{
+        } else {
             return 0;
         }
     }
@@ -348,9 +395,9 @@ public class Team {
      * @return point differential on the first of the two round 3 ballots
      */
     public int getRound3Ballot1PD() {
-        if(round3Ballot1PD<141){
+        if (round3Opponent != 0) {
             return round3Ballot1PD;
-        }else{
+        } else {
             return 0;
         }
     }
@@ -377,9 +424,9 @@ public class Team {
      * @return point differential on the second of the two round 3 ballots
      */
     public int getRound3Ballot2PD() {
-        if(round3Ballot2PD<141){
+        if (round3Opponent != 0) {
             return round3Ballot2PD;
-        }else{
+        } else {
             return 0;
         }
     }
@@ -406,9 +453,9 @@ public class Team {
      * @return point differential on the first of the two round 4 ballots
      */
     public int getRound4Ballot1PD() {
-        if(round4Ballot1PD<141){
+        if (round4Opponent != 0) {
             return round4Ballot1PD;
-        }else{
+        } else {
             return 0;
         }
     }
@@ -435,9 +482,9 @@ public class Team {
      * @return point differential on the second of the two round 4 ballots
      */
     public int getRound4Ballot2PD() {
-        if(round4Ballot2PD<141){
+        if (round4Opponent != 0) {
             return round4Ballot2PD;
-        }else{
+        } else {
             return 0;
         }
     }
@@ -510,28 +557,28 @@ public class Team {
      */
     public int getWins() {
         int wins = 0;
-        if (round1Ballot1PD > 0 && round1Ballot1PD < 141) {
+        if (round1Ballot1PD > 0) {
             wins++;
         }
-        if (round1Ballot2PD > 0 && round1Ballot2PD < 141) {
+        if (round1Ballot2PD > 0) {
             wins++;
         }
-        if (round2Ballot1PD > 0 && round2Ballot1PD < 141) {
+        if (round2Ballot1PD > 0) {
             wins++;
         }
-        if (round2Ballot2PD > 0 && round2Ballot2PD < 141) {
+        if (round2Ballot2PD > 0) {
             wins++;
         }
-        if (round3Ballot1PD > 0 && round3Ballot1PD < 141) {
+        if (round3Ballot1PD > 0) {
             wins++;
         }
-        if (round3Ballot2PD > 0 && round3Ballot2PD < 141) {
+        if (round3Ballot2PD > 0) {
             wins++;
         }
-        if (round4Ballot1PD > 0 && round4Ballot1PD < 141) {
+        if (round4Ballot1PD > 0) {
             wins++;
         }
-        if (round4Ballot2PD > 0 && round4Ballot2PD < 141) {
+        if (round4Ballot2PD > 0) {
             wins++;
         }
         return wins;
@@ -573,63 +620,48 @@ public class Team {
 
     /**
      * Returns the number of ballots the team has tied
+     *
      * @return number of ballots tied
      */
     public int getTies() {
         int ties = 0;
-        if (round1Ballot1PD == 0) {
+        if (round1Ballot1PD == 0 && round1Opponent!=0) {
             ties++;
         }
-        if (round1Ballot2PD == 0) {
+        if (round1Ballot2PD == 0 && round1Opponent!=0) {
             ties++;
         }
-        if (round2Ballot1PD == 0) {
+        if (round2Ballot1PD == 0 && round2Opponent!=0) {
             ties++;
         }
-        if (round2Ballot2PD == 0) {
+        if (round2Ballot2PD == 0 && round2Opponent!=0) {
             ties++;
         }
-        if (round3Ballot1PD == 0) {
+        if (round3Ballot1PD == 0 && round3Opponent!=0) {
             ties++;
         }
-        if (round3Ballot2PD == 0) {
+        if (round3Ballot2PD == 0 && round3Opponent!=0) {
             ties++;
         }
-        if (round4Ballot1PD == 0) {
+        if (round4Ballot1PD == 0 && round4Opponent!=0) {
             ties++;
         }
-        if (round4Ballot2PD == 0) {
+        if (round4Ballot2PD == 0 && round4Opponent!=0) {
             ties++;
         }
         return ties;
     }
-    
-    public int getPD(){
+
+    public int getPD() {
         int pd = 0;
-        if (round1Ballot1PD < 141) {
             pd = pd + round1Ballot1PD;
-        }
-        if (round1Ballot2PD < 141) {
             pd = pd + round1Ballot2PD;
-        }
-        if (round2Ballot1PD < 141) {
             pd = pd + round2Ballot1PD;
-        }
-        if (round2Ballot2PD < 141) {
             pd = pd + round2Ballot2PD;
-        }
-        if (round3Ballot1PD < 141) {
             pd = pd + round3Ballot1PD;
-        }
-        if (round3Ballot2PD < 141) {
             pd = pd + round3Ballot2PD;
-        }
-        if (round4Ballot1PD < 141) {
             pd = pd + round4Ballot1PD;
-        }
-        if (round4Ballot2PD < 141) {
             pd = pd + round4Ballot2PD;
-        }
         return pd;
     }
 }

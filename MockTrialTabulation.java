@@ -29,6 +29,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
@@ -43,11 +46,25 @@ import javafx.stage.Stage;
  */
 public class MockTrialTabulation extends Application {
 
+    final MenuBar menuBar = new MenuBar();
+    final Menu fileMenu = new Menu("File");
+    final MenuItem save = new MenuItem("Save...");
+    final MenuItem open = new MenuItem("Open...");
     private Tournament tournament = new Tournament();
 
     @Override
     public void start(Stage primaryStage) {
         displayTeamNumberPrompt(primaryStage);
+        fileMenu.getItems().add(open);
+        fileMenu.getItems().add(save);
+        menuBar.getMenus().add(fileMenu);
+        menuBar.setUseSystemMenuBar(true);
+        open.setOnAction(e -> {
+            loadTournament(primaryStage);
+        });
+        save.setOnAction(e -> {
+            saveTournament();
+        });
     }
 
     public void displayTeamNumberPrompt(Stage primaryStage) {
@@ -70,7 +87,10 @@ public class MockTrialTabulation extends Application {
             displayTeamDataPrompt(primaryStage, Integer.parseInt(numberOfTeams.getText()));
         });
         grid.add(btn, 1, 4);
-        Scene scene = new Scene(grid);
+        VBox vbox = new VBox();
+        vbox.getChildren().add(menuBar);
+        vbox.getChildren().add(grid);
+        Scene scene = new Scene(vbox);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -181,23 +201,23 @@ public class MockTrialTabulation extends Application {
             if (tournament.getTeam(a).getRound1Plaintiff()) {
                 teamSideSelectors[a][0].getSelectionModel().select(0);
                 teamSideSelectors[a][1].getSelectionModel().select(1);
-            }else{
+            } else {
                 teamSideSelectors[a][0].getSelectionModel().select(1);
                 teamSideSelectors[a][1].getSelectionModel().select(0);
             }
             if (tournament.getTeam(a).getRound3Plaintiff()) {
                 teamSideSelectors[a][2].getSelectionModel().select(0);
                 teamSideSelectors[a][3].getSelectionModel().select(1);
-            }else{
+            } else {
                 teamSideSelectors[a][2].getSelectionModel().select(1);
                 teamSideSelectors[a][3].getSelectionModel().select(0);
             }
-            
+
             teamOpponentFields[a][0].setText(Integer.toString(tournament.getTeam(a).getRound1Opponent()));
             teamOpponentFields[a][1].setText(Integer.toString(tournament.getTeam(a).getRound2Opponent()));
             teamOpponentFields[a][2].setText(Integer.toString(tournament.getTeam(a).getRound3Opponent()));
             teamOpponentFields[a][3].setText(Integer.toString(tournament.getTeam(a).getRound4Opponent()));
-            
+
             teamPDFields[a][0].setText(Integer.toString(tournament.getTeam(a).getRound1Ballot1PD()));
             teamPDFields[a][1].setText(Integer.toString(tournament.getTeam(a).getRound1Ballot2PD()));
             teamPDFields[a][2].setText(Integer.toString(tournament.getTeam(a).getRound2Ballot1PD()));
@@ -206,10 +226,10 @@ public class MockTrialTabulation extends Application {
             teamPDFields[a][5].setText(Integer.toString(tournament.getTeam(a).getRound3Ballot2PD()));
             teamPDFields[a][6].setText(Integer.toString(tournament.getTeam(a).getRound4Ballot1PD()));
             teamPDFields[a][7].setText(Integer.toString(tournament.getTeam(a).getRound4Ballot2PD()));
-            
-            teamRecordLabels[a] = new Label(tournament.getTeam(a).getWins()+"-"+tournament.getTeam(a).getLoses()+"-"+tournament.getTeam(a).getTies());
-            teamCSLabels[a] = new Label("CS: "+tournament.getTeamCS(tournament.getTeam(a).getTeamNumber()));
-            teamPDLabels[a] = new Label("PD: "+tournament.getTeam(a).getPD());
+
+            teamRecordLabels[a] = new Label(tournament.getTeam(a).getWins() + "-" + tournament.getTeam(a).getLoses() + "-" + tournament.getTeam(a).getTies());
+            teamCSLabels[a] = new Label("CS: " + tournament.getTeamCS(tournament.getTeam(a).getTeamNumber()));
+            teamPDLabels[a] = new Label("PD: " + tournament.getTeam(a).getPD());
         }
 
         for (int a = 0; a < tournament.getTeams().size(); a++) {
@@ -237,12 +257,9 @@ public class MockTrialTabulation extends Application {
             tournament.pairRound1();
             displayTabulationWindow(primaryStage);
         });
-        
+
         saveTournament.setOnAction((ActionEvent e) -> {
-            FileChooser saveLocationChooser = new FileChooser();
-            saveLocationChooser.setTitle("Save Tournament");
-            File saveLocation = saveLocationChooser.showSaveDialog(new Stage());
-            SpreadsheetHandler.saveToSpreadsheet(tournament, saveLocation);
+            saveTournament();
         });
 
         HBox buttonBox = new HBox();
@@ -253,5 +270,20 @@ public class MockTrialTabulation extends Application {
         mainVBox.getChildren().add(buttonBox);
         Scene scene = new Scene(mainVBox);
         primaryStage.setScene(scene);
+    }
+
+    private void saveTournament() {
+        FileChooser saveLocationChooser = new FileChooser();
+        saveLocationChooser.setTitle("Save Tournament");
+        File saveLocation = saveLocationChooser.showSaveDialog(new Stage());
+        SpreadsheetHandler.saveToSpreadsheet(tournament, saveLocation);
+    }
+
+    private void loadTournament(Stage primaryStage) {
+        FileChooser openLocationChooser = new FileChooser();
+        openLocationChooser.setTitle("Open Tournament");
+        File tournamentFileLocation = openLocationChooser.showOpenDialog(new Stage());
+        tournament = SpreadsheetHandler.loadFromSpreadsheet(tournamentFileLocation);
+        displayTabulationWindow(primaryStage);
     }
 }
