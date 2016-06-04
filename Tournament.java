@@ -158,24 +158,34 @@ public class Tournament {
     }
 
     public int[][] pairRound3() {
-        ArrayList<Team> pairings = sortTeams((ArrayList<Team>)teams.clone());
+        ArrayList<Team> pairings = sortTeams((ArrayList<Team>) teams.clone());
         pairings = resolveImpermissibleMatches(pairings);
         int[][] pairingsReturn = new int[teams.size() / 2][2];
-        for (int a = 0; a < teams.size() / 2; a++) {
-            pairingsReturn[a][0] = pairings.get(a * 2).getTeamNumber();
-            pairingsReturn[a][1] = pairings.get(a * 2 + 1).getTeamNumber();
+        for (int a = 0; a < teams.size() / 2; a = a + 2) {
+            if (round3Rank1IsPlaintiff) {
+                pairingsReturn[a][0] = pairings.get(a * 2).getTeamNumber();
+                pairingsReturn[a][1] = pairings.get(a * 2 + 1).getTeamNumber();
+                pairingsReturn[a + 1][0] = pairings.get(a * 2 + 3).getTeamNumber();
+                pairingsReturn[a + 1][1] = pairings.get(a * 2 + 2).getTeamNumber();
+            } else {
+                pairingsReturn[a][0] = pairings.get(a * 2 + 1).getTeamNumber();
+                pairingsReturn[a][1] = pairings.get(a * 2).getTeamNumber();
+                pairingsReturn[a + 1][0] = pairings.get(a * 2 + 2).getTeamNumber();
+                pairingsReturn[a + 1][1] = pairings.get(a * 2 + 3).getTeamNumber();
+            }
+
         }
         return pairingsReturn;
     }
 
-    public void pairRound4() {
-        ArrayList<Team> plaintiffs = new ArrayList<>();
-        ArrayList<Team> defendants = new ArrayList<>();
+    public int[][] pairRound4() {
+        ArrayList<Team> plaintiffs;
+        ArrayList<Team> defendants;
         ArrayList<Team> needsPlaintiff = new ArrayList<>();
         ArrayList<Team> needsDefense = new ArrayList<>();
 
         for (int a = 0; a < teams.size(); a++) {
-            if (teams.get(a).getRound1Plaintiff()) {
+            if (teams.get(a).getRound3Plaintiff()) {
                 needsDefense.add(teams.get(a));
             } else {
                 needsPlaintiff.add(teams.get(a));
@@ -183,7 +193,13 @@ public class Tournament {
         }
         plaintiffs = sortTeams(needsPlaintiff);
         defendants = sortTeams(needsDefense);
-        resolveImpermissibleMatches(plaintiffs, defendants);
+        ArrayList<Team>[] pairings = resolveImpermissibleMatches(plaintiffs, defendants);
+        int[][] pairingsReturn = new int[teams.size() / 2][2];
+        for (int a = 0; a < pairings[0].size(); a++) {
+            pairingsReturn[a][0] = pairings[0].get(a).getTeamNumber();
+            pairingsReturn[a][1] = pairings[1].get(a).getTeamNumber();
+        }
+        return pairingsReturn;
     }
 
     private ArrayList<Team>[] resolveImpermissibleMatches(ArrayList<Team> plaintiffs, ArrayList<Team> defendants) {
@@ -212,23 +228,35 @@ public class Tournament {
                 for (int b = 0; b < plaintiffs.size(); b++) {
                     Integer[] proposedPlaintiffSwap = {Math.min(plaintiffs.get(a).getTeamNumber(), plaintiffs.get(b).getTeamNumber()), Math.max(plaintiffs.get(a).getTeamNumber(), plaintiffs.get(b).getTeamNumber())};
                     Integer[] proposedDefenseSwap = {Math.min(defendants.get(a).getTeamNumber(), defendants.get(b).getTeamNumber()), Math.max(defendants.get(a).getTeamNumber(), defendants.get(b).getTeamNumber())};
-                    if (Math.abs(a - b) == plaintiffRankDistance && !swapList.contains(proposedPlaintiffSwap)) {
+                    boolean plaintiffClearsSwapList = true;
+                    for (int c = 0; c < swapList.size(); c++) {
+                        if (swapList.get(c)[0].equals(proposedPlaintiffSwap[0]) && swapList.get(c)[1].equals(proposedPlaintiffSwap[1])) {
+                            plaintiffClearsSwapList = false;
+                        }
+                    }
+                    boolean defendantClearsSwapList = true;
+                    for (int c = 0; c < swapList.size(); c++) {
+                        if (swapList.get(c)[0].equals(proposedDefenseSwap[0]) && swapList.get(c)[1].equals(proposedDefenseSwap[1])) {
+                            defendantClearsSwapList = false;
+                        }
+                    }
+                    if (Math.abs(a - b) == plaintiffRankDistance && plaintiffClearsSwapList) {
                         proposedPlaintiffSwapTeams.add(plaintiffs.get(b));
                     }
-                    if (Math.abs(a - b) == defenseRankDistance && !swapList.contains(proposedDefenseSwap)) {
+                    if (Math.abs(a - b) == defenseRankDistance && defendantClearsSwapList) {
                         proposedDefenseSwapTeams.add(defendants.get(b));
                     }
                 }
                 if (proposedPlaintiffSwapTeams.size() > 1) {
                     BigDecimal[] record = new BigDecimal[3];
                     for (int b = 0; b < 2; b++) {
-                        record[b+1] = new BigDecimal(proposedPlaintiffSwapTeams.get(0).getWins() + proposedPlaintiffSwapTeams.get(0).getTies() * .5);
+                        record[b + 1] = new BigDecimal(proposedPlaintiffSwapTeams.get(0).getWins() + proposedPlaintiffSwapTeams.get(0).getTies() * .5);
                         if (proposedPlaintiffSwapTeams.get(b).isByeTeam()) {
-                            record[b+1] = new BigDecimal(-1);
+                            record[b + 1] = new BigDecimal(-1);
                         }
                     }
                     record[0] = new BigDecimal(plaintiffs.get(a).getWins() + plaintiffs.get(a).getTies() * .5);
-                    if(plaintiffs.get(a).isByeTeam()){
+                    if (plaintiffs.get(a).isByeTeam()) {
                         record[0] = new BigDecimal(-1);
                     }
                     if (record[0].subtract(record[1]).abs().compareTo(record[0].subtract(record[2]).abs()) > 0) {
@@ -261,13 +289,13 @@ public class Tournament {
                 if (proposedDefenseSwapTeams.size() > 1) {
                     BigDecimal[] record = new BigDecimal[3];
                     for (int b = 0; b < 2; b++) {
-                        record[b+1] = new BigDecimal(proposedDefenseSwapTeams.get(0).getWins() + proposedDefenseSwapTeams.get(0).getTies() * .5);
+                        record[b + 1] = new BigDecimal(proposedDefenseSwapTeams.get(0).getWins() + proposedDefenseSwapTeams.get(0).getTies() * .5);
                         if (proposedDefenseSwapTeams.get(b).isByeTeam()) {
-                            record[b+1] = new BigDecimal(-1);
+                            record[b + 1] = new BigDecimal(-1);
                         }
                     }
                     record[0] = new BigDecimal(defendants.get(a).getWins() + defendants.get(a).getTies() * .5);
-                    if(defendants.get(a).isByeTeam()){
+                    if (defendants.get(a).isByeTeam()) {
                         record[0] = new BigDecimal(-1);
                     }
                     if (record[0].subtract(record[1]).abs().compareTo(record[0].subtract(record[2]).abs()) > 0) {
@@ -393,11 +421,23 @@ public class Tournament {
                 int closestToDefense = 0;
                 for (int b = 0; b < pairings.size(); b++) {
                     Integer[] proposedPlaintiffSwap = {Math.min(pairings.get(a * 2).getTeamNumber(), pairings.get(b).getTeamNumber()), Math.max(pairings.get(a * 2).getTeamNumber(), pairings.get(b).getTeamNumber())};
-                    if (Math.abs(a * 2 - b) < plaintiffRankDistance && b != a * 2 && b != a * 2 + 1 && !swapList.contains(proposedPlaintiffSwap)) {
+                    boolean plaintiffClearsSwapList = true;
+                    for (int c = 0; c < swapList.size(); c++) {
+                        if (swapList.get(c)[0].equals(proposedPlaintiffSwap[0]) && swapList.get(c)[1].equals(proposedPlaintiffSwap[1])) {
+                            plaintiffClearsSwapList = false;
+                        }
+                    }
+                    if (Math.abs(a * 2 - b) < plaintiffRankDistance && b != a * 2 && b != a * 2 + 1 && plaintiffClearsSwapList) {
                         closestToPlaintiff = b;
                     }
                     Integer[] proposedDefenseSwap = {Math.min(pairings.get(a * 2 + 1).getTeamNumber(), pairings.get(b).getTeamNumber()), Math.max(pairings.get(a * 2 + 1).getTeamNumber(), pairings.get(b).getTeamNumber())};
-                    if (Math.abs(a * 2 - b + 1) < defenseRankDistance && b != a * 2 && b != a * 2 + 1 && !swapList.contains(proposedDefenseSwap)) {
+                    boolean defendantClearsSwapList = true;
+                    for (int c = 0; c < swapList.size(); c++) {
+                        if (swapList.get(c)[0].equals(proposedDefenseSwap[0]) && swapList.get(c)[1].equals(proposedDefenseSwap[1])) {
+                            defendantClearsSwapList = false;
+                        }
+                    }
+                    if (Math.abs(a * 2 - b + 1) < defenseRankDistance && b != a * 2 && b != a * 2 + 1 && defendantClearsSwapList) {
                         closestToDefense = b;
                     }
                 }
@@ -520,7 +560,17 @@ public class Tournament {
      */
     public BigDecimal getTeamCS(int teamNumber) {
         BigDecimal cs = new BigDecimal("0.0");
-        //TODO write algorithm to get CS
+        for (int a = 0; a < teams.size(); a++) {
+            if (teams.get(a).getRound1Opponent() == teamNumber) {
+                cs = cs.add(teams.get(a).getStatisticalWins());
+            } else if (teams.get(a).getRound2Opponent() == teamNumber) {
+                cs = cs.add(teams.get(a).getStatisticalWins());
+            } else if (teams.get(a).getRound3Opponent() == teamNumber) {
+                cs = cs.add(teams.get(a).getStatisticalWins());
+            } else if (teams.get(a).getRound4Opponent() == teamNumber) {
+                cs = cs.add(teams.get(a).getStatisticalWins());
+            }
+        }
         return cs;
     }
 
@@ -534,26 +584,26 @@ public class Tournament {
                 sortedTeams.add(teamsToSort.get(0));
                 teamsToSort.remove(0);
             }
-            int maxRecord = 0;
+            BigDecimal maxRecord = new BigDecimal("0.0");
             for (int a = 0; a < teamsToSort.size(); a++) {
-                if (maxRecord < teamsToSort.get(a).getWins() && !teamsToSort.get(a).isByeTeam()) {
-                    maxRecord = teamsToSort.get(a).getWins();
+                if (maxRecord.compareTo(teamsToSort.get(a).getStatisticalWins()) < 0 && !teamsToSort.get(a).isByeTeam()) {
+                    maxRecord = teamsToSort.get(a).getStatisticalWins();
                 }
             }
             for (int a = 0; a < teamsToSort.size(); a++) {
-                if (teamsToSort.get(a).getWins() == maxRecord && !teamsToSort.get(a).isByeTeam()) {
+                if (teamsToSort.get(a).getStatisticalWins().compareTo(maxRecord) == 0 && !teamsToSort.get(a).isByeTeam()) {
                     sameRecordArray.add(teamsToSort.get(a));
                 }
             }
 
             BigDecimal maxCS = new BigDecimal("0.0");
             for (int a = 0; a < sameRecordArray.size(); a++) {
-                if (getTeamCS(teams.get(a).getTeamNumber()).compareTo(maxCS) == 1) {
-                    maxCS = getTeamCS(teams.get(a).getTeamNumber());
+                if (getTeamCS(sameRecordArray.get(a).getTeamNumber()).compareTo(maxCS) > 0) {
+                    maxCS = getTeamCS(sameRecordArray.get(a).getTeamNumber());
                 }
             }
             for (int a = 0; a < sameRecordArray.size(); a++) {
-                if (getTeamCS(teams.get(a).getTeamNumber()).compareTo(maxCS) == 0) {
+                if (getTeamCS(sameRecordArray.get(a).getTeamNumber()).compareTo(maxCS) == 0) {
                     sameCSArray.add(sameRecordArray.get(a));
                     sameRecordArray.remove(a);
                     a = -1;

@@ -16,6 +16,7 @@
  */
 package com.allenbarr.MockTrialTabulation;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,8 +63,10 @@ public class Team {
     }
 
     /**
-     * Creates a new team object with all fields set based on data from the constructor.
-     * Intended for use when restoring a Team from a save file that contains all the fields
+     * Creates a new team object with all fields set based on data from the
+     * constructor. Intended for use when restoring a Team from a save file that
+     * contains all the fields
+     *
      * @param teamNumber
      * @param teamName
      * @param round1Plaintiff
@@ -81,7 +84,7 @@ public class Team {
      * @param round4Ballot1PD
      * @param round4Ballot2PD
      * @param impermissibleMatches
-     * @param members 
+     * @param members
      */
     public Team(int teamNumber, String teamName, boolean isByeTeam, boolean round1Plaintiff, boolean round3Plaintiff,
             int round1Opponent, int round2Opponent, int round3Opponent, int round4Opponent,
@@ -145,9 +148,9 @@ public class Team {
         this.teamName = teamName;
     }
 
-    
     /**
      * Check whether the invoking team is the bye-team
+     *
      * @return true if it is the bye-team, false if it isn't
      */
     public boolean isByeTeam() {
@@ -155,15 +158,14 @@ public class Team {
     }
 
     /**
-     * Sets whether  or not this team is the bye-team
+     * Sets whether or not this team is the bye-team
+     *
      * @param byeTeam true if it is the bye-team, false if it isn't
      */
     public void setByeTeam(boolean byeTeam) {
         this.byeTeam = byeTeam;
     }
 
-    
-    
     /**
      * Returns true if the Team was plaintiff round 1; false if the Team was
      * defendant round 1
@@ -647,43 +649,93 @@ public class Team {
      */
     public int getTies() {
         int ties = 0;
-        if (round1Ballot1PD == 0 && round1Opponent!=0) {
+        if (round1Ballot1PD == 0 && round1Opponent != 0) {
             ties++;
         }
-        if (round1Ballot2PD == 0 && round1Opponent!=0) {
+        if (round1Ballot2PD == 0 && round1Opponent != 0) {
             ties++;
         }
-        if (round2Ballot1PD == 0 && round2Opponent!=0) {
+        if (round2Ballot1PD == 0 && round2Opponent != 0) {
             ties++;
         }
-        if (round2Ballot2PD == 0 && round2Opponent!=0) {
+        if (round2Ballot2PD == 0 && round2Opponent != 0) {
             ties++;
         }
-        if (round3Ballot1PD == 0 && round3Opponent!=0) {
+        if (round3Ballot1PD == 0 && round3Opponent != 0) {
             ties++;
         }
-        if (round3Ballot2PD == 0 && round3Opponent!=0) {
+        if (round3Ballot2PD == 0 && round3Opponent != 0) {
             ties++;
         }
-        if (round4Ballot1PD == 0 && round4Opponent!=0) {
+        if (round4Ballot1PD == 0 && round4Opponent != 0) {
             ties++;
         }
-        if (round4Ballot2PD == 0 && round4Opponent!=0) {
+        if (round4Ballot2PD == 0 && round4Opponent != 0) {
             ties++;
         }
         return ties;
     }
 
+    /**
+     * Returns the number of statistical wins (wins plus .5*ties)
+     *
+     * @return Number of statistical wins
+     */
+    public BigDecimal getStatisticalWins() {
+        BigDecimal statWins = new BigDecimal("0.0");
+        if (round1Ballot1PD > 0) {
+            statWins = statWins.add(BigDecimal.ONE);
+        } else if (round1Ballot1PD == 0 && round1Opponent != 0) {
+            statWins = statWins.add(BigDecimal.valueOf(0.5));
+        }
+        if (round1Ballot2PD > 0) {
+            statWins = statWins.add(BigDecimal.ONE);
+        }else if (round1Ballot2PD == 0 && round1Opponent != 0) {
+            statWins = statWins.add(BigDecimal.valueOf(0.5));
+        }
+        if (round2Ballot1PD > 0) {
+            statWins = statWins.add(BigDecimal.ONE);
+        }else if (round2Ballot1PD == 0 && round2Opponent != 0) {
+            statWins = statWins.add(BigDecimal.valueOf(0.5));
+        }
+        if (round2Ballot2PD > 0) {
+            statWins = statWins.add(BigDecimal.ONE);
+        }else if (round2Ballot2PD == 0 && round2Opponent != 0) {
+            statWins = statWins.add(BigDecimal.valueOf(0.5));
+        }
+        if (round3Ballot1PD > 0) {
+            statWins = statWins.add(BigDecimal.ONE);
+        }else if (round3Ballot1PD == 0 && round3Opponent != 0) {
+            statWins = statWins.add(BigDecimal.valueOf(0.5));
+        }
+        if (round3Ballot2PD > 0) {
+            statWins = statWins.add(BigDecimal.ONE);
+        }else if (round3Ballot2PD == 0 && round3Opponent != 0) {
+            statWins = statWins.add(BigDecimal.valueOf(0.5));
+        }
+        if (round4Ballot1PD > 0) {
+            statWins = statWins.add(BigDecimal.ONE);
+        }else if (round4Ballot1PD == 0 && round4Opponent != 0) {
+            statWins = statWins.add(BigDecimal.valueOf(0.5));
+        }
+        if (round4Ballot2PD > 0) {
+            statWins = statWins.add(BigDecimal.ONE);
+        }else if (round4Ballot2PD == 0 && round4Opponent != 0) {
+            statWins = statWins.add(BigDecimal.valueOf(0.5));
+        }
+        return statWins;
+    }
+
     public int getPD() {
         int pd = 0;
-            pd = pd + round1Ballot1PD;
-            pd = pd + round1Ballot2PD;
-            pd = pd + round2Ballot1PD;
-            pd = pd + round2Ballot2PD;
-            pd = pd + round3Ballot1PD;
-            pd = pd + round3Ballot2PD;
-            pd = pd + round4Ballot1PD;
-            pd = pd + round4Ballot2PD;
+        pd = pd + round1Ballot1PD;
+        pd = pd + round1Ballot2PD;
+        pd = pd + round2Ballot1PD;
+        pd = pd + round2Ballot2PD;
+        pd = pd + round3Ballot1PD;
+        pd = pd + round3Ballot2PD;
+        pd = pd + round4Ballot1PD;
+        pd = pd + round4Ballot2PD;
         return pd;
     }
 }

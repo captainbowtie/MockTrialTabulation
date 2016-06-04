@@ -180,8 +180,8 @@ public class MockTrialTabulation extends Application {
     private void displayTabulationWindow() {
         final Button[] teamNumberButtons = new Button[tournament.getTeams().size()];
         final Label[] teamNameLabels = new Label[tournament.getTeams().size()];
-        final ComboBox[][] teamSideSelectors = new ComboBox[tournament.getTeams().size()][4];
-        final TextField[][] teamOpponentFields = new TextField[tournament.getTeams().size()][4];
+        final Label[][] teamSideLabels = new Label[tournament.getTeams().size()][4];
+        final Label[][] teamOpponentLabels = new Label[tournament.getTeams().size()][4];
         final TextField[][] teamPDFields = new TextField[tournament.getTeams().size()][8];
         final Label[] teamRecordLabels = new Label[tournament.getTeams().size()];
         final Label[] teamCSLabels = new Label[tournament.getTeams().size()];
@@ -197,37 +197,32 @@ public class MockTrialTabulation extends Application {
             teamNumberButtons[a] = new Button(Integer.toString(tournament.getTeam(a).getTeamNumber()));
             teamNameLabels[a] = new Label(tournament.getTeam(a).getTeamName());
             for (int b = 0; b < 4; b++) {
-                ObservableList<String> sideStrings = FXCollections.observableArrayList(
-                        "π vs.",
-                        "∆ vs."
-                );
-                teamSideSelectors[a][b] = new ComboBox(sideStrings);
-                teamOpponentFields[a][b] = new TextField();
-                teamOpponentFields[a][b].setPrefColumnCount(4);
+                teamSideLabels[a][b] = new Label();
+                teamOpponentLabels[a][b] = new Label();
                 teamPDFields[a][b] = new TextField();
                 teamPDFields[a][b + 4] = new TextField();
                 teamPDFields[a][b].setPrefColumnCount(2);
                 teamPDFields[a][b + 4].setPrefColumnCount(2);
             }
             if (tournament.getTeam(a).getRound1Plaintiff()) {
-                teamSideSelectors[a][0].getSelectionModel().select(0);
-                teamSideSelectors[a][1].getSelectionModel().select(1);
+                teamSideLabels[a][0].setText("π vs.");
+                teamSideLabels[a][1].setText("∆ vs.");
             } else {
-                teamSideSelectors[a][0].getSelectionModel().select(1);
-                teamSideSelectors[a][1].getSelectionModel().select(0);
+                teamSideLabels[a][0].setText("∆ vs.");
+                teamSideLabels[a][1].setText("π vs.");
             }
             if (tournament.getTeam(a).getRound3Plaintiff()) {
-                teamSideSelectors[a][2].getSelectionModel().select(0);
-                teamSideSelectors[a][3].getSelectionModel().select(1);
+                teamSideLabels[a][2].setText("π vs.");
+                teamSideLabels[a][3].setText("∆ vs.");
             } else {
-                teamSideSelectors[a][2].getSelectionModel().select(1);
-                teamSideSelectors[a][3].getSelectionModel().select(0);
+                teamSideLabels[a][2].setText("∆ vs.");
+                teamSideLabels[a][3].setText("π vs.");
             }
 
-            teamOpponentFields[a][0].setText(Integer.toString(tournament.getTeam(a).getRound1Opponent()));
-            teamOpponentFields[a][1].setText(Integer.toString(tournament.getTeam(a).getRound2Opponent()));
-            teamOpponentFields[a][2].setText(Integer.toString(tournament.getTeam(a).getRound3Opponent()));
-            teamOpponentFields[a][3].setText(Integer.toString(tournament.getTeam(a).getRound4Opponent()));
+            teamOpponentLabels[a][0].setText(Integer.toString(tournament.getTeam(a).getRound1Opponent()));
+            teamOpponentLabels[a][1].setText(Integer.toString(tournament.getTeam(a).getRound2Opponent()));
+            teamOpponentLabels[a][2].setText(Integer.toString(tournament.getTeam(a).getRound3Opponent()));
+            teamOpponentLabels[a][3].setText(Integer.toString(tournament.getTeam(a).getRound4Opponent()));
 
             teamPDFields[a][0].setText(Integer.toString(tournament.getTeam(a).getRound1Ballot1PD()));
             teamPDFields[a][1].setText(Integer.toString(tournament.getTeam(a).getRound1Ballot2PD()));
@@ -247,8 +242,8 @@ public class MockTrialTabulation extends Application {
             grid.add(teamNumberButtons[a], 0, a * 2);
             grid.add(teamNameLabels[a], 0, a * 2 + 1);
             for (int b = 0; b < 4; b++) {
-                grid.add(teamSideSelectors[a][b], b * 2 + 1, a * 2);
-                grid.add(teamOpponentFields[a][b], b * 2 + 2, a * 2);
+                grid.add(teamSideLabels[a][b], b * 2 + 1, a * 2);
+                grid.add(teamOpponentLabels[a][b], b * 2 + 2, a * 2);
                 grid.add(teamPDFields[a][b * 2], b * 2 + 1, a * 2 + 1);
                 grid.add(teamPDFields[a][b * 2 + 1], b * 2 + 2, a * 2 + 1);
             }
@@ -307,7 +302,9 @@ public class MockTrialTabulation extends Application {
         pairRound3.setOnAction(e -> {
             displayPairingConfirmationDialog(tournament.pairRound3(), 3);
         });
-        
+        pairRound4.setOnAction(e -> {
+            displayPairingConfirmationDialog(tournament.pairRound4(), 4);
+        });        
 
         HBox buttonBox = new HBox();
         buttonBox.getChildren().addAll(pairRound1, pairRound2, pairRound3, pairRound4, generateTabSummary);
