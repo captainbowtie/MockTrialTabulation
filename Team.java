@@ -27,6 +27,7 @@ public class Team {
 
     private int teamNumber = 0;
     private String teamName = "N/A";
+    private boolean byeTeam = false;
     private boolean round1Plaintiff = true;
     private boolean round3Plaintiff = true;
     private int round1Opponent = 0;
@@ -52,10 +53,11 @@ public class Team {
      * @param teamName the team's name
      * @param impermissibleMatches List of all team numbers the Team cannot face
      */
-    public Team(int teamNumber, String teamName, List<Integer> impermissibleMatches) {
+    public Team(int teamNumber, String teamName, List<Integer> impermissibleMatches, boolean isByeTeam) {
         this.teamNumber = teamNumber;
         this.teamName = teamName;
         this.impermissibleMatches = impermissibleMatches;
+        this.byeTeam = isByeTeam;
         members = new ArrayList<>();
     }
 
@@ -81,13 +83,14 @@ public class Team {
      * @param impermissibleMatches
      * @param members 
      */
-    public Team(int teamNumber, String teamName, boolean round1Plaintiff, boolean round3Plaintiff,
+    public Team(int teamNumber, String teamName, boolean isByeTeam, boolean round1Plaintiff, boolean round3Plaintiff,
             int round1Opponent, int round2Opponent, int round3Opponent, int round4Opponent,
             int round1Ballot1PD, int round1Ballot2PD, int round2Ballot1PD, int round2Ballot2PD,
             int round3Ballot1PD, int round3Ballot2PD, int round4Ballot1PD, int round4Ballot2PD,
             ArrayList<Integer> impermissibleMatches, ArrayList<Member> members) {
         this.teamNumber = teamNumber;
         this.teamName = teamName;
+        this.byeTeam = isByeTeam;
         this.round1Plaintiff = round1Plaintiff;
         this.round3Plaintiff = round3Plaintiff;
         this.round1Opponent = round1Opponent;
@@ -142,6 +145,25 @@ public class Team {
         this.teamName = teamName;
     }
 
+    
+    /**
+     * Check whether the invoking team is the bye-team
+     * @return true if it is the bye-team, false if it isn't
+     */
+    public boolean isByeTeam() {
+        return byeTeam;
+    }
+
+    /**
+     * Sets whether  or not this team is the bye-team
+     * @param byeTeam true if it is the bye-team, false if it isn't
+     */
+    public void setByeTeam(boolean byeTeam) {
+        this.byeTeam = byeTeam;
+    }
+
+    
+    
     /**
      * Returns true if the Team was plaintiff round 1; false if the Team was
      * defendant round 1

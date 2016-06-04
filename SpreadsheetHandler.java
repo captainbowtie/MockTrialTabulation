@@ -54,7 +54,7 @@ public abstract class SpreadsheetHandler {
             int[] maxes = getTeamMaxes(tournament);
             for (int a = 0; a < tournament.getTeams().size(); a++) {
                 final Team team = tournament.getTeam(a);
-                out.print(team.getTeamNumber() + "," + team.getTeamName() + ","
+                out.print(team.getTeamNumber() + "," + team.getTeamName() + "," + team.isByeTeam() + ","
                         + team.getRound1Plaintiff() + "," + team.getRound3Plaintiff() + ","
                         + team.getRound1Opponent() + "," + team.getRound2Opponent() + ","
                         + team.getRound3Opponent() + "," + team.getRound4Opponent() + ","
@@ -108,7 +108,7 @@ public abstract class SpreadsheetHandler {
             final Pattern teamNumberREGEX = Pattern.compile("\\d{4}");
             final Pattern memberREGEX = Pattern.compile("[A-z\\d ]*,\\d,\\d,\\d,\\d,\\d,\\d,\\d,\\d,\\d,\\d,\\d,\\d,\\d,\\d,\\d,\\d,");
             final boolean lowerTeamNumberIsHigherRank = Boolean.parseBoolean(line.substring(0,line.indexOf(',')));
-            line = line.substring(5);
+            line = line.substring(line.indexOf(',') + 1); 
             final boolean round3Rank1IsPlaintiff = Boolean.parseBoolean(line);
             line = in.readLine();
             tournament = new Tournament(lowerTeamNumberIsHigherRank,round3Rank1IsPlaintiff);
@@ -117,6 +117,8 @@ public abstract class SpreadsheetHandler {
                 line = line.substring(5);
                 final String teamName = line.substring(0, line.indexOf(','));
                 line = line.substring(teamName.length() + 1);
+                final boolean isByeTeam = Boolean.parseBoolean(line.substring(0, line.indexOf(',')));
+                line = line.substring(line.indexOf(',') + 1);
                 final boolean round1Plaintiff = Boolean.parseBoolean(line.substring(0, line.indexOf(',')));
                 line = line.substring(line.indexOf(',') + 1);
                 boolean round3Plaintiff = Boolean.parseBoolean(line.substring(0, line.indexOf(',')));
@@ -153,7 +155,7 @@ public abstract class SpreadsheetHandler {
                 final Matcher teamNumberMatcher = teamNumberREGEX.matcher(line);
                 ArrayList<Integer> impermissibleMatches = new ArrayList<>();
                 while (teamNumberMatcher.find()) {
-                    impermissibleMatches.add(Integer.parseInt(line.substring(teamNumberMatcher.start(), teamNumberMatcher.end() - 1)));
+                    impermissibleMatches.add(Integer.parseInt(line.substring(teamNumberMatcher.start(), teamNumberMatcher.end() )));
                 }
                 line = line.substring(impermissibleMatches.size() * 5);
                 final Matcher memberMatcher = memberREGEX.matcher(line);
@@ -168,7 +170,7 @@ public abstract class SpreadsheetHandler {
                     }
                     members.add(new Member(memberName, ranks));
                 }
-                tournament.addTeam(new Team(teamNumber, teamName, round1Plaintiff, round3Plaintiff,
+                tournament.addTeam(new Team(teamNumber, teamName, isByeTeam, round1Plaintiff, round3Plaintiff,
                         round1Opponent, round2Opponent, round3Opponent, round4Opponent,
                         round1Ballot1PD, round1Ballot2PD, round2Ballot1PD, round2Ballot2PD,
                         round3Ballot1PD, round3Ballot2PD, round4Ballot1PD, round4Ballot2PD,
