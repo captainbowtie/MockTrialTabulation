@@ -172,7 +172,7 @@ public class Team {
      *
      * @return whether during round 1 the invoking Team was plaintiff
      */
-    public boolean getRound1Plaintiff() {
+    public boolean isRound1Plaintiff() {
         return round1Plaintiff;
     }
 
@@ -192,7 +192,7 @@ public class Team {
      *
      * @return whether during round 3 the invoking Team was plaintiff
      */
-    public boolean getRound3Plaintiff() {
+    public boolean isRound3Plaintiff() {
         return round3Plaintiff;
     }
 

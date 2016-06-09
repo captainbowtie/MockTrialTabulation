@@ -129,8 +129,8 @@ public class MockTrialTabulation extends Application {
         grid.add(teamNameField, 1, 1);
 
         CheckBox isByeTeam = new CheckBox("This team is the bye-team");
-        grid.add(isByeTeam,0,2);
-        
+        grid.add(isByeTeam, 0, 2);
+
         Button addImpermissibleButton = new Button("Add Impermissible Match...");
         addImpermissibleButton.setOnAction((ActionEvent e) -> {
             int gridSize = grid.getChildren().size();
@@ -142,7 +142,7 @@ public class MockTrialTabulation extends Application {
             } else {
                 GridPane.setRowIndex(grid.getChildren().get(6), gridSize / 2 + 2);
                 GridPane.setRowIndex(grid.getChildren().get(5), gridSize / 2 + 1);
-                grid.add(new Label("Impermissible Match " + (gridSize / 2 - 2) + ":"), 0, gridSize / 2 );
+                grid.add(new Label("Impermissible Match " + (gridSize / 2 - 2) + ":"), 0, gridSize / 2);
                 grid.add(new TextField(), 1, gridSize / 2);
                 primaryStage.sizeToScene();
             }
@@ -204,14 +204,14 @@ public class MockTrialTabulation extends Application {
                 teamPDFields[a][b].setPrefColumnCount(2);
                 teamPDFields[a][b + 4].setPrefColumnCount(2);
             }
-            if (tournament.getTeam(a).getRound1Plaintiff()) {
+            if (tournament.getTeam(a).isRound1Plaintiff()) {
                 teamSideLabels[a][0].setText("π vs.");
                 teamSideLabels[a][1].setText("∆ vs.");
             } else {
                 teamSideLabels[a][0].setText("∆ vs.");
                 teamSideLabels[a][1].setText("π vs.");
             }
-            if (tournament.getTeam(a).getRound3Plaintiff()) {
+            if (tournament.getTeam(a).isRound3Plaintiff()) {
                 teamSideLabels[a][2].setText("π vs.");
                 teamSideLabels[a][3].setText("∆ vs.");
             } else {
@@ -304,7 +304,10 @@ public class MockTrialTabulation extends Application {
         });
         pairRound4.setOnAction(e -> {
             displayPairingConfirmationDialog(tournament.pairRound4(), 4);
-        });        
+        });
+        generateTabSummary.setOnAction(e -> {
+            generateTabSummaryPrompt();
+        });
 
         HBox buttonBox = new HBox();
         buttonBox.getChildren().addAll(pairRound1, pairRound2, pairRound3, pairRound4, generateTabSummary);
@@ -402,5 +405,12 @@ public class MockTrialTabulation extends Application {
         File tournamentFileLocation = openLocationChooser.showOpenDialog(new Stage());
         tournament = SpreadsheetHandler.loadFromSpreadsheet(tournamentFileLocation);
         displayTabulationWindow();
+    }
+
+    private void generateTabSummaryPrompt() {
+        FileChooser saveLocationChooser = new FileChooser();
+        saveLocationChooser.setTitle("Generate Tab Summary");
+        File saveLocation = saveLocationChooser.showSaveDialog(new Stage());
+        TabSummaryWriter.createTabSummary(tournament, saveLocation);
     }
 }

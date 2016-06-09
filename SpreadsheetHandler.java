@@ -55,7 +55,7 @@ public abstract class SpreadsheetHandler {
             for (int a = 0; a < tournament.getTeams().size(); a++) {
                 final Team team = tournament.getTeam(a);
                 out.print(team.getTeamNumber() + "," + team.getTeamName() + "," + team.isByeTeam() + ","
-                        + team.getRound1Plaintiff() + "," + team.getRound3Plaintiff() + ","
+                        + team.isRound1Plaintiff() + "," + team.isRound3Plaintiff() + ","
                         + team.getRound1Opponent() + "," + team.getRound2Opponent() + ","
                         + team.getRound3Opponent() + "," + team.getRound4Opponent() + ","
                         + team.getRound1Ballot1PD() + "," + team.getRound1Ballot2PD() + ","

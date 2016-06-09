@@ -140,7 +140,7 @@ public class Tournament {
         final ArrayList<Team> needsDefense = new ArrayList<>();
 
         for (int a = 0; a < teams.size(); a++) {
-            if (teams.get(a).getRound1Plaintiff()) {
+            if (teams.get(a).isRound1Plaintiff()) {
                 needsDefense.add(teams.get(a));
             } else {
                 needsPlaintiff.add(teams.get(a));
@@ -185,7 +185,7 @@ public class Tournament {
         ArrayList<Team> needsDefense = new ArrayList<>();
 
         for (int a = 0; a < teams.size(); a++) {
-            if (teams.get(a).getRound3Plaintiff()) {
+            if (teams.get(a).isRound3Plaintiff()) {
                 needsDefense.add(teams.get(a));
             } else {
                 needsPlaintiff.add(teams.get(a));
