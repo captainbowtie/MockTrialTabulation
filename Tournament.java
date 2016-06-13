@@ -94,7 +94,7 @@ public class Tournament {
      *
      * @return teams competing at the tournament in List form
      */
-    public List<Team> getTeams() {
+    public ArrayList<Team> getTeams() {
         return teams;
     }
 
@@ -563,18 +563,22 @@ public class Tournament {
         for (int a = 0; a < teams.size(); a++) {
             if (teams.get(a).getRound1Opponent() == teamNumber) {
                 cs = cs.add(teams.get(a).getStatisticalWins());
-            } else if (teams.get(a).getRound2Opponent() == teamNumber) {
+            }
+            if (teams.get(a).getRound2Opponent() == teamNumber) {
                 cs = cs.add(teams.get(a).getStatisticalWins());
-            } else if (teams.get(a).getRound3Opponent() == teamNumber) {
+            }
+            if (teams.get(a).getRound3Opponent() == teamNumber) {
                 cs = cs.add(teams.get(a).getStatisticalWins());
-            } else if (teams.get(a).getRound4Opponent() == teamNumber) {
+            }
+            if (teams.get(a).getRound4Opponent() == teamNumber) {
                 cs = cs.add(teams.get(a).getStatisticalWins());
             }
         }
         return cs;
     }
 
-    private ArrayList<Team> sortTeams(ArrayList<Team> teamsToSort) {
+    public ArrayList<Team> sortTeams(ArrayList<Team> teams) {
+        ArrayList<Team> teamsToSort= (ArrayList<Team>)teams.clone();
         ArrayList<Team> sortedTeams = new ArrayList<>();
         while (!teamsToSort.isEmpty()) {
             ArrayList<Team> sameRecordArray = new ArrayList<>();

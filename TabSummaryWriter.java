@@ -20,10 +20,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -40,11 +43,83 @@ public abstract class TabSummaryWriter {
     public static void createTabSummary(Tournament tournament, File file) {
         final Workbook wb = new XSSFWorkbook();
         final Sheet sheet = wb.createSheet("Tabulation Summary");
+        //Tab summary header
+        final Row tournamentNameRow = sheet.createRow(0);
+        final Row hostedByRow = sheet.createRow(1);
+        final Row hostSchoolRow = sheet.createRow(2);
+        final Row tournamentDateRow = sheet.createRow(3);
+        final Row tabulationSummaryRow = sheet.createRow(4); 
+        tournamentNameRow.createCell(0).setCellValue("Tournament Name");
+        hostedByRow.createCell(0).setCellValue("Hosted by");
+        hostSchoolRow.createCell(0).setCellValue("Host School");
+        tournamentDateRow.createCell(0).setCellValue("Tournament Date");
+        tabulationSummaryRow.createCell(0).setCellValue("TABULATION SUMMARY");
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 15));
+        sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 15));
+        sheet.addMergedRegion(new CellRangeAddress(2, 2, 0, 15));
+        sheet.addMergedRegion(new CellRangeAddress(3, 3, 0, 15));
+        sheet.addMergedRegion(new CellRangeAddress(4, 4, 0, 15));
+        Font bold = wb.createFont();
+        bold.setBold(true);
+        CellStyle boldCentered = wb.createCellStyle();
+        CellStyle centered = wb.createCellStyle();
+        boldCentered.setAlignment(CellStyle.ALIGN_CENTER);
+        boldCentered.setFont(bold);
+        centered.setAlignment(CellStyle.ALIGN_CENTER);
+        tournamentNameRow.getCell(0).setCellStyle(boldCentered);
+        hostedByRow.getCell(0).setCellStyle(centered);
+        hostSchoolRow.getCell(0).setCellStyle(centered);
+        tournamentDateRow.getCell(0).setCellStyle(centered);
+        tabulationSummaryRow.getCell(0).setCellStyle(boldCentered);
+        int verticalOffset = 6;
+        //Team data headers
+        final Row headerRow  = sheet.createRow(verticalOffset-1);
+        //Set header cell values
+        headerRow.createCell(0).setCellValue("Team");
+        headerRow.createCell(1).setCellValue("Round 1");
+        headerRow.createCell(2);
+        headerRow.createCell(3);
+        headerRow.createCell(4).setCellValue("Round 2");
+        headerRow.createCell(5);
+        headerRow.createCell(6);
+        headerRow.createCell(7).setCellValue("Round 3");
+        headerRow.createCell(8);
+        headerRow.createCell(9);
+        headerRow.createCell(10).setCellValue("Round 4");
+        headerRow.createCell(11);
+        headerRow.createCell(12);
+        headerRow.createCell(13).setCellValue("Summary");
+        //Merge header cells
+        sheet.addMergedRegion(new CellRangeAddress(verticalOffset-1, verticalOffset-1, 1, 3));
+        sheet.addMergedRegion(new CellRangeAddress(verticalOffset-1, verticalOffset-1, 4, 6));
+        sheet.addMergedRegion(new CellRangeAddress(verticalOffset-1, verticalOffset-1, 7, 9));
+        sheet.addMergedRegion(new CellRangeAddress(verticalOffset-1, verticalOffset-1, 10, 12));
+        sheet.addMergedRegion(new CellRangeAddress(verticalOffset-1, verticalOffset-1, 13, 15));
+        //Format cells
+        CellStyle headerCell = wb.createCellStyle();
+        headerCell.setBorderBottom(CellStyle.BORDER_THICK);
+        headerCell.setBottomBorderColor(IndexedColors.WHITE.getIndex());
+        headerCell.setAlignment(CellStyle.ALIGN_CENTER);
+        headerRow.getCell(0).setCellStyle(headerCell);
+        headerRow.getCell(1).setCellStyle(headerCell);
+        headerRow.getCell(2).setCellStyle(headerCell);
+        headerRow.getCell(3).setCellStyle(headerCell);
+        headerRow.getCell(4).setCellStyle(headerCell);
+        headerRow.getCell(5).setCellStyle(headerCell);
+        headerRow.getCell(6).setCellStyle(headerCell);
+        headerRow.getCell(7).setCellStyle(headerCell);
+        headerRow.getCell(8).setCellStyle(headerCell);
+        headerRow.getCell(9).setCellStyle(headerCell);
+        headerRow.getCell(10).setCellStyle(headerCell);
+        headerRow.getCell(11).setCellStyle(headerCell);
+        headerRow.getCell(12).setCellStyle(headerCell);
+        headerRow.getCell(13).setCellStyle(headerCell);
+        //for loop contains all team data
         for (int a = 0; a < tournament.getTeams().size(); a++) {
             final Team team = tournament.getTeam(a);
-            final Row row0 = sheet.createRow(a * 3);
-            final Row row1 = sheet.createRow(a * 3 + 1);
-            final Row row2 = sheet.createRow(a * 3 + 2);
+            final Row row0 = sheet.createRow(a * 3 + verticalOffset);
+            final Row row1 = sheet.createRow(a * 3 + 1 + verticalOffset);
+            final Row row2 = sheet.createRow(a * 3 + 2 + verticalOffset);
             //Set cell values
             row0.createCell(0).setCellValue(team.getTeamNumber());
             row1.createCell(0).setCellValue(team.getTeamName());
@@ -136,11 +211,11 @@ public abstract class TabSummaryWriter {
             row2.createCell(12).setCellValue(team.getRound4Ballot2PD());
             row0.createCell(13).setCellValue(team.getWins() + " - " + team.getLoses() + " - " + team.getTies());
             row1.createCell(13).setCellValue("CS");
-            //row1.createCell(15).setCellValue("OCS");
-            row1.createCell(17).setCellValue("PD");
+            //row1.createCell(14).setCellValue("OCS");
+            row1.createCell(15).setCellValue("PD");
             row2.createCell(13).setCellValue(tournament.getTeamCS(team.getTeamNumber()).toString());
-            //row2.createCell(15).setCellValue(tournament.getTeamOCS(team.getTeamNumber()).toString());
-            row2.createCell(17).setCellValue(team.getPD());
+            //row2.createCell(14).setCellValue(tournament.getTeamOCS(team.getTeamNumber()).toString());
+            row2.createCell(15).setCellValue(team.getPD());
             //Format cells
             //Team Number
             CellStyle teamNumber = wb.createCellStyle();
@@ -150,10 +225,10 @@ public abstract class TabSummaryWriter {
             teamNumber.setBorderRight(CellStyle.BORDER_THICK);
             teamNumber.setRightBorderColor(IndexedColors.WHITE.getIndex());
             if (a % 2.0 == 0) {
-                teamNumber.setFillForegroundColor(IndexedColors.TEAL.getIndex());
+                teamNumber.setFillForegroundColor(IndexedColors.CORNFLOWER_BLUE.getIndex());
                 teamNumber.setFillPattern(CellStyle.SOLID_FOREGROUND);
             } else {
-                teamNumber.setFillForegroundColor(IndexedColors.AQUA.getIndex());
+                teamNumber.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
                 teamNumber.setFillPattern(CellStyle.SOLID_FOREGROUND);
             }
             row0.getCell(0).setCellStyle(teamNumber);
@@ -164,10 +239,10 @@ public abstract class TabSummaryWriter {
             teamName.setBorderRight(CellStyle.BORDER_THICK);
             teamName.setRightBorderColor(IndexedColors.WHITE.getIndex());
             if (a % 2.0 == 0) {
-                teamName.setFillForegroundColor(IndexedColors.TEAL.getIndex());
+                teamName.setFillForegroundColor(IndexedColors.CORNFLOWER_BLUE.getIndex());
                 teamName.setFillPattern(CellStyle.SOLID_FOREGROUND);
             } else {
-                teamName.setFillForegroundColor(IndexedColors.AQUA.getIndex());
+                teamName.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
                 teamName.setFillPattern(CellStyle.SOLID_FOREGROUND);
             }
             row1.getCell(0).setCellStyle(teamName);
@@ -179,10 +254,10 @@ public abstract class TabSummaryWriter {
             sideIndicator.setBorderLeft(CellStyle.BORDER_THICK);
             sideIndicator.setLeftBorderColor(IndexedColors.WHITE.getIndex());
             if (a % 2.0 == 0) {
-                sideIndicator.setFillForegroundColor(IndexedColors.TEAL.getIndex());
+                sideIndicator.setFillForegroundColor(IndexedColors.CORNFLOWER_BLUE.getIndex());
                 sideIndicator.setFillPattern(CellStyle.SOLID_FOREGROUND);
             } else {
-                sideIndicator.setFillForegroundColor(IndexedColors.AQUA.getIndex());
+                sideIndicator.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
                 sideIndicator.setFillPattern(CellStyle.SOLID_FOREGROUND);
             }
             row0.getCell(1).setCellStyle(sideIndicator);
@@ -195,10 +270,10 @@ public abstract class TabSummaryWriter {
             vText.setBorderTop(CellStyle.BORDER_THICK);
             vText.setTopBorderColor(IndexedColors.WHITE.getIndex());
             if (a % 2.0 == 0) {
-                vText.setFillForegroundColor(IndexedColors.TEAL.getIndex());
+                vText.setFillForegroundColor(IndexedColors.CORNFLOWER_BLUE.getIndex());
                 vText.setFillPattern(CellStyle.SOLID_FOREGROUND);
             } else {
-                vText.setFillForegroundColor(IndexedColors.AQUA.getIndex());
+                vText.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
                 vText.setFillPattern(CellStyle.SOLID_FOREGROUND);
             }
             row0.getCell(2).setCellStyle(vText);
@@ -213,10 +288,10 @@ public abstract class TabSummaryWriter {
             opposingTeamNumber.setBorderRight(CellStyle.BORDER_THICK);
             opposingTeamNumber.setRightBorderColor(IndexedColors.WHITE.getIndex());
             if (a % 2.0 == 0) {
-                opposingTeamNumber.setFillForegroundColor(IndexedColors.TEAL.getIndex());
+                opposingTeamNumber.setFillForegroundColor(IndexedColors.CORNFLOWER_BLUE.getIndex());
                 opposingTeamNumber.setFillPattern(CellStyle.SOLID_FOREGROUND);
             } else {
-                opposingTeamNumber.setFillForegroundColor(IndexedColors.AQUA.getIndex());
+                opposingTeamNumber.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
                 opposingTeamNumber.setFillPattern(CellStyle.SOLID_FOREGROUND);
             }
             row0.getCell(3).setCellStyle(opposingTeamNumber);
@@ -229,10 +304,10 @@ public abstract class TabSummaryWriter {
             ballot1WLTtext.setBorderLeft(CellStyle.BORDER_THICK);
             ballot1WLTtext.setLeftBorderColor(IndexedColors.WHITE.getIndex());
             if (a % 2.0 == 0) {
-                ballot1WLTtext.setFillForegroundColor(IndexedColors.TEAL.getIndex());
+                ballot1WLTtext.setFillForegroundColor(IndexedColors.CORNFLOWER_BLUE.getIndex());
                 ballot1WLTtext.setFillPattern(CellStyle.SOLID_FOREGROUND);
             } else {
-                ballot1WLTtext.setFillForegroundColor(IndexedColors.AQUA.getIndex());
+                ballot1WLTtext.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
                 ballot1WLTtext.setFillPattern(CellStyle.SOLID_FOREGROUND);
             }
             row1.getCell(1).setCellStyle(ballot1WLTtext);
@@ -245,10 +320,10 @@ public abstract class TabSummaryWriter {
             ballot2WLTtext.setBorderRight(CellStyle.BORDER_THICK);
             ballot2WLTtext.setRightBorderColor(IndexedColors.WHITE.getIndex());
             if (a % 2.0 == 0) {
-                ballot2WLTtext.setFillForegroundColor(IndexedColors.TEAL.getIndex());
+                ballot2WLTtext.setFillForegroundColor(IndexedColors.CORNFLOWER_BLUE.getIndex());
                 ballot2WLTtext.setFillPattern(CellStyle.SOLID_FOREGROUND);
             } else {
-                ballot2WLTtext.setFillForegroundColor(IndexedColors.AQUA.getIndex());
+                ballot2WLTtext.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
                 ballot2WLTtext.setFillPattern(CellStyle.SOLID_FOREGROUND);
             }
             row1.getCell(3).setCellStyle(ballot2WLTtext);
@@ -263,10 +338,10 @@ public abstract class TabSummaryWriter {
             ballot1PD.setBorderBottom(CellStyle.BORDER_THICK);
             ballot1PD.setBottomBorderColor(IndexedColors.WHITE.getIndex());
             if (a % 2.0 == 0) {
-                ballot1PD.setFillForegroundColor(IndexedColors.TEAL.getIndex());
+                ballot1PD.setFillForegroundColor(IndexedColors.CORNFLOWER_BLUE.getIndex());
                 ballot1PD.setFillPattern(CellStyle.SOLID_FOREGROUND);
             } else {
-                ballot1PD.setFillForegroundColor(IndexedColors.AQUA.getIndex());
+                ballot1PD.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
                 ballot1PD.setFillPattern(CellStyle.SOLID_FOREGROUND);
             }
             row2.getCell(1).setCellStyle(ballot1PD);
@@ -281,10 +356,10 @@ public abstract class TabSummaryWriter {
             ballot2PD.setBorderBottom(CellStyle.BORDER_THICK);
             ballot2PD.setBottomBorderColor(IndexedColors.WHITE.getIndex());
             if (a % 2.0 == 0) {
-                ballot2PD.setFillForegroundColor(IndexedColors.TEAL.getIndex());
+                ballot2PD.setFillForegroundColor(IndexedColors.CORNFLOWER_BLUE.getIndex());
                 ballot2PD.setFillPattern(CellStyle.SOLID_FOREGROUND);
             } else {
-                ballot2PD.setFillForegroundColor(IndexedColors.AQUA.getIndex());
+                ballot2PD.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
                 ballot2PD.setFillPattern(CellStyle.SOLID_FOREGROUND);
             }
             row2.getCell(3).setCellStyle(ballot2PD);
@@ -292,7 +367,9 @@ public abstract class TabSummaryWriter {
             row2.getCell(9).setCellStyle(ballot2PD);
             row2.getCell(12).setCellStyle(ballot2PD);
             //W-L-T record text
-            sheet.addMergedRegion(new CellRangeAddress(a * 3, a * 3, 13, 17));
+            sheet.addMergedRegion(new CellRangeAddress(a * 3 + verticalOffset, a * 3 + verticalOffset, 13, 15));
+            row0.createCell(14);
+            row0.createCell(15);
             CellStyle wltRecord = wb.createCellStyle();
             DataFormat format = wb.createDataFormat();
             wltRecord.setDataFormat(format.getFormat("General"));
@@ -302,23 +379,25 @@ public abstract class TabSummaryWriter {
             wltRecord.setBorderLeft(CellStyle.BORDER_THICK);
             wltRecord.setLeftBorderColor(IndexedColors.WHITE.getIndex());
             if (a % 2.0 == 0) {
-                wltRecord.setFillForegroundColor(IndexedColors.TEAL.getIndex());
+                wltRecord.setFillForegroundColor(IndexedColors.CORNFLOWER_BLUE.getIndex());
                 wltRecord.setFillPattern(CellStyle.SOLID_FOREGROUND);
             } else {
-                wltRecord.setFillForegroundColor(IndexedColors.AQUA.getIndex());
+                wltRecord.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
                 wltRecord.setFillPattern(CellStyle.SOLID_FOREGROUND);
             }
             row0.getCell(13).setCellStyle(wltRecord);
+            row0.createCell(14).setCellStyle(wltRecord);
+            row0.createCell(15).setCellStyle(wltRecord);
             //CS text
             CellStyle csText = wb.createCellStyle();
             csText.setAlignment(CellStyle.ALIGN_CENTER);
             csText.setBorderLeft(CellStyle.BORDER_THICK);
             csText.setLeftBorderColor(IndexedColors.WHITE.getIndex());
             if (a % 2.0 == 0) {
-                csText.setFillForegroundColor(IndexedColors.TEAL.getIndex());
+                csText.setFillForegroundColor(IndexedColors.CORNFLOWER_BLUE.getIndex());
                 csText.setFillPattern(CellStyle.SOLID_FOREGROUND);
             } else {
-                csText.setFillForegroundColor(IndexedColors.AQUA.getIndex());
+                csText.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
                 csText.setFillPattern(CellStyle.SOLID_FOREGROUND);
             }
             row1.getCell(13).setCellStyle(csText);
@@ -330,10 +409,10 @@ public abstract class TabSummaryWriter {
             csNumber.setBorderBottom(CellStyle.BORDER_THICK);
             csNumber.setBottomBorderColor(IndexedColors.WHITE.getIndex());
             if (a % 2.0 == 0) {
-                csNumber.setFillForegroundColor(IndexedColors.TEAL.getIndex());
+                csNumber.setFillForegroundColor(IndexedColors.CORNFLOWER_BLUE.getIndex());
                 csNumber.setFillPattern(CellStyle.SOLID_FOREGROUND);
             } else {
-                csNumber.setFillForegroundColor(IndexedColors.AQUA.getIndex());
+                csNumber.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
                 csNumber.setFillPattern(CellStyle.SOLID_FOREGROUND);
             }
             row2.getCell(13).setCellStyle(csNumber);
@@ -341,26 +420,83 @@ public abstract class TabSummaryWriter {
             CellStyle pdText = wb.createCellStyle();
             pdText.setAlignment(CellStyle.ALIGN_CENTER);
             if (a % 2.0 == 0) {
-                pdText.setFillForegroundColor(IndexedColors.TEAL.getIndex());
+                pdText.setFillForegroundColor(IndexedColors.CORNFLOWER_BLUE.getIndex());
                 pdText.setFillPattern(CellStyle.SOLID_FOREGROUND);
             } else {
-                pdText.setFillForegroundColor(IndexedColors.AQUA.getIndex());
+                pdText.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
                 pdText.setFillPattern(CellStyle.SOLID_FOREGROUND);
             }
-            row1.getCell(17).setCellStyle(pdText);
+            row1.getCell(15).setCellStyle(pdText);
             //PD number
             CellStyle pdNumber = wb.createCellStyle();
             pdNumber.setAlignment(CellStyle.ALIGN_CENTER);
             pdNumber.setBorderBottom(CellStyle.BORDER_THICK);
             pdNumber.setBottomBorderColor(IndexedColors.WHITE.getIndex());
             if (a % 2.0 == 0) {
-                pdNumber.setFillForegroundColor(IndexedColors.TEAL.getIndex());
+                pdNumber.setFillForegroundColor(IndexedColors.CORNFLOWER_BLUE.getIndex());
                 pdNumber.setFillPattern(CellStyle.SOLID_FOREGROUND);
             } else {
-                pdNumber.setFillForegroundColor(IndexedColors.AQUA.getIndex());
+                pdNumber.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
                 pdNumber.setFillPattern(CellStyle.SOLID_FOREGROUND);
             }
-            row2.getCell(17).setCellStyle(pdNumber);
+            row2.getCell(15).setCellStyle(pdNumber);
+            //Blank cells
+            CellStyle blankCellCenter = wb.createCellStyle();
+            if (a % 2.0 == 0) {
+                blankCellCenter.setFillForegroundColor(IndexedColors.CORNFLOWER_BLUE.getIndex());
+            } else {
+                blankCellCenter.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
+            }
+            blankCellCenter.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            row1.createCell(2).setCellStyle(blankCellCenter);
+            row1.createCell(5).setCellStyle(blankCellCenter);
+            row1.createCell(8).setCellStyle(blankCellCenter);
+            row1.createCell(11).setCellStyle(blankCellCenter);
+            row1.createCell(14).setCellStyle(blankCellCenter);
+            
+            CellStyle blankCellBottom = wb.createCellStyle();
+            if (a % 2.0 == 0) {
+                blankCellBottom.setFillForegroundColor(IndexedColors.CORNFLOWER_BLUE.getIndex());
+            } else {
+                blankCellBottom.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
+            }
+            blankCellBottom.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            blankCellBottom.setBorderBottom(CellStyle.BORDER_THICK);
+            blankCellBottom.setBottomBorderColor(IndexedColors.WHITE.getIndex());
+            row2.createCell(0).setCellStyle(blankCellBottom);
+            row2.createCell(2).setCellStyle(blankCellBottom);
+            row2.createCell(5).setCellStyle(blankCellBottom);
+            row2.createCell(8).setCellStyle(blankCellBottom);
+            row2.createCell(11).setCellStyle(blankCellBottom);
+            row2.createCell(14).setCellStyle(blankCellBottom);
+        }
+        sheet.autoSizeColumn(0);
+        sheet.setColumnWidth(1, 1323);
+        sheet.autoSizeColumn(2);
+        sheet.setColumnWidth(3, 1323);
+        sheet.setColumnWidth(4, 1323);
+        sheet.autoSizeColumn(5);
+        sheet.setColumnWidth(6, 1323);
+        sheet.setColumnWidth(7, 1323);
+        sheet.autoSizeColumn(8);
+        sheet.setColumnWidth(9, 1323);
+        sheet.setColumnWidth(10, 1323);
+        sheet.autoSizeColumn(11);
+        sheet.setColumnWidth(12, 1323);
+        sheet.autoSizeColumn(13);
+        sheet.setColumnWidth(14, 1);
+        sheet.autoSizeColumn(15);
+        //Team Placements
+        int teamPlacementStart = tournament.getTeams().size()*3+7;
+        ArrayList<Team> rankedTeams = tournament.sortTeams(tournament.getTeams());
+        for(int a = 0;a<rankedTeams.size();a++){
+            Row rankRow = sheet.createRow(teamPlacementStart+a);
+            Team team = rankedTeams.get(a);
+            String cs = tournament.getTeamCS(team.getTeamNumber()).toString();
+            String rankText = a+1+") "+ team.getTeamNumber() + " "+ team.getTeamName() + " "+
+                    team.getWins()+"-"+team.getLoses()+"-"+team.getTies() + " CS: "+
+                    tournament.getTeamCS(team.getTeamNumber())+" PD: "+ team.getPD();
+            rankRow.createCell(0).setCellValue(rankText);
         }
 
         FileOutputStream fileOut;
