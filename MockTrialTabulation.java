@@ -20,17 +20,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -41,6 +38,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -51,12 +49,12 @@ import javafx.stage.Stage;
  */
 public class MockTrialTabulation extends Application {
 
-    final MenuBar menuBar = new MenuBar();
-    final Menu fileMenu = new Menu("File");
-    final MenuItem save = new MenuItem("Save...");
-    final MenuItem open = new MenuItem("Open...");
+    final private MenuBar menuBar = new MenuBar();
+    final private Menu fileMenu = new Menu("File");
+    final private MenuItem save = new MenuItem("Save...");
+    final private MenuItem open = new MenuItem("Open...");
     private Tournament tournament = new Tournament();
-    private Stage primaryStage = new Stage();
+    final private Stage primaryStage = new Stage();
 
     @Override
     public void start(Stage primaryStage) {
@@ -75,13 +73,9 @@ public class MockTrialTabulation extends Application {
         save.setAccelerator(KeyCombination.keyCombination("Meta+S"));
     }
 
-    public void displayTeamNumberPrompt() {
+    private void displayTeamNumberPrompt() {
         primaryStage.setTitle("Mock Trial Tabulation");
         GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(25, 25, 25, 25));
 
         Label numberPrompt = new Label("Number of teams:");
         grid.add(numberPrompt, 0, 1);
@@ -99,6 +93,7 @@ public class MockTrialTabulation extends Application {
         vbox.getChildren().add(menuBar);
         vbox.getChildren().add(grid);
         Scene scene = new Scene(vbox);
+        scene.getStylesheets().add(MockTrialTabulation.class.getResource("MockTrialTabulation.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -109,10 +104,6 @@ public class MockTrialTabulation extends Application {
 
     private void displayTeamDataPrompt(int numberOfTeams) {
         GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(25, 25, 25, 25));
 
         Label teamNumberLabel = new Label("Team Number:");
         grid.add(teamNumberLabel, 0, 0);
@@ -132,29 +123,43 @@ public class MockTrialTabulation extends Application {
         grid.add(isByeTeam, 0, 2);
 
         Button addImpermissibleButton = new Button("Add Impermissible Match...");
-        addImpermissibleButton.setOnAction((ActionEvent e) -> {
-            int gridSize = grid.getChildren().size();
-            if (gridSize == 7) {
-                GridPane.setRowIndex(grid.getChildren().get(6), 5);
-                GridPane.setRowIndex(grid.getChildren().get(5), 4);
-                grid.add(new Label("Impermissible Match 1:"), 0, 3);
-                grid.add(new TextField(), 1, 3);
-            } else {
-                GridPane.setRowIndex(grid.getChildren().get(6), gridSize / 2 + 2);
-                GridPane.setRowIndex(grid.getChildren().get(5), gridSize / 2 + 1);
-                grid.add(new Label("Impermissible Match " + (gridSize / 2 - 2) + ":"), 0, gridSize / 2);
-                grid.add(new TextField(), 1, gridSize / 2);
-                primaryStage.sizeToScene();
-            }
-
+        addImpermissibleButton.setOnAction(e -> {
+            int numRows = getRowCount(grid);
+            GridPane.setRowIndex(grid.getChildren().get(6), numRows);
+            GridPane.setRowIndex(grid.getChildren().get(5), numRows - 1);
+            Button deleteImpermissibleButton = new Button("X");
+            deleteImpermissibleButton.setOnAction(ev -> {
+                for (int a = grid.getChildren().indexOf(ev.getSource()); a <= grid.getChildren().size(); a = a + 3) {
+                    if (a+1 != grid.getChildren().size()) {
+                        TextField lowerTextField = (TextField) grid.getChildren().get(a + 2);
+                        String impermissibleTeamNumber = lowerTextField.getText();
+                        TextField upperTextField = (TextField) grid.getChildren().get(a - 1);
+                        upperTextField.setText(impermissibleTeamNumber);
+                    } else {
+                        int numRowsDelete = getRowCount(grid);
+                        grid.getChildren().remove(a);
+                        grid.getChildren().remove(a - 1);
+                        grid.getChildren().remove(a - 2);
+                        GridPane.setRowIndex(grid.getChildren().get(6), numRowsDelete - 2);
+                        GridPane.setRowIndex(grid.getChildren().get(5), numRowsDelete - 3);
+                        primaryStage.sizeToScene();
+                    }
+                }
+            });
+            deleteImpermissibleButton.setId("deleteImpermissibleButton");
+            grid.add(new Label("Impermissible Match " + (numRows - 4) + ":"), 0, numRows - 2);
+            grid.add(new TextField(), 1, numRows - 2);
+            grid.add(deleteImpermissibleButton, 2, numRows - 2);
+            primaryStage.sizeToScene();
         });
         grid.add(addImpermissibleButton, 0, 3);
 
         Button okayButton = new Button("Next Team");
         okayButton.setOnAction((ActionEvent e) -> {
             final List<Integer> impermissibleMatches = new ArrayList<>();
-            for (int i = 0; i < grid.getChildren().size() - 7; i = i + 2) {
-                impermissibleMatches.add(Integer.parseInt(((TextField) grid.getChildren().get(i + 8)).getText()));
+            int rowCount = getRowCount(grid);
+            for(int a = 0;a<rowCount-5;a++){
+                impermissibleMatches.add(Integer.parseInt(((TextField) grid.getChildren().get(a*3+8)).getText()));
             }
             tournament.addTeam(Integer.parseInt(teamNumberField.getText()), teamNameField.getText(), impermissibleMatches, isByeTeam.isSelected());
             if (tournament.getTeams().size() == numberOfTeams) {
@@ -188,10 +193,6 @@ public class MockTrialTabulation extends Application {
         final Label[] teamPDLabels = new Label[tournament.getTeams().size()];
 
         GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(25, 25, 25, 25));
 
         for (int a = 0; a < tournament.getTeams().size(); a++) {
             teamNumberButtons[a] = new Button(Integer.toString(tournament.getTeam(a).getTeamNumber()));
@@ -329,10 +330,7 @@ public class MockTrialTabulation extends Application {
         final Label[] vsText = new Label[proposedPairings.length];
         final Stage pairingConfirmation = new Stage();
         GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(25, 25, 25, 25));
+        
         for (int a = 0; a < proposedPairings.length; a++) {
             teamSelectors[a][0] = new ComboBox();
             teamSelectors[a][1] = new ComboBox();
@@ -412,5 +410,19 @@ public class MockTrialTabulation extends Application {
         saveLocationChooser.setTitle("Generate Tab Summary");
         File saveLocation = saveLocationChooser.showSaveDialog(new Stage());
         TabSummaryWriter.createTabSummary(tournament, saveLocation);
+    }
+
+    private int getRowCount(GridPane pane) {
+        int numRows = pane.getRowConstraints().size();
+        for (int i = 0; i < pane.getChildren().size(); i++) {
+            Node child = pane.getChildren().get(i);
+            if (child.isManaged()) {
+                Integer rowIndex = GridPane.getRowIndex(child);
+                if (rowIndex != null) {
+                    numRows = Math.max(numRows, rowIndex + 1);
+                }
+            }
+        }
+        return numRows;
     }
 }
