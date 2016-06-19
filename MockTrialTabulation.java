@@ -13,21 +13,25 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * "isIntenger" methods written by corsiKa:
+ * https://stackoverflow.com/users/330057/corsika
  */
 package com.allenbarr.MockTrialTabulation;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -38,7 +42,6 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -71,6 +74,7 @@ public class MockTrialTabulation extends Application {
             saveTournament();
         });
         save.setAccelerator(KeyCombination.keyCombination("Meta+S"));
+        save.setDisable(true);
     }
 
     private void displayTeamNumberPrompt() {
@@ -86,7 +90,16 @@ public class MockTrialTabulation extends Application {
 
         Button btn = new Button("Okay");
         btn.setOnAction((ActionEvent e) -> {
-            displayTeamDataPrompt(Integer.parseInt(numberOfTeams.getText()));
+            if (!isInteger(numberOfTeams.getText())) {
+                Alert notANumber = new Alert(AlertType.ERROR);
+                notANumber.setContentText("The text entered for the number of "
+                        + "teams is not a valid number. "
+                        + "Please enter a valid number.");
+                notANumber.showAndWait();
+            } else {
+                displayTeamDataPrompt(Integer.parseInt(numberOfTeams.getText()));
+            }
+
         });
         grid.add(btn, 1, 4);
         VBox vbox = new VBox();
@@ -130,7 +143,7 @@ public class MockTrialTabulation extends Application {
             Button deleteImpermissibleButton = new Button("X");
             deleteImpermissibleButton.setOnAction(ev -> {
                 for (int a = grid.getChildren().indexOf(ev.getSource()); a <= grid.getChildren().size(); a = a + 3) {
-                    if (a+1 != grid.getChildren().size()) {
+                    if (a + 1 != grid.getChildren().size()) {
                         TextField lowerTextField = (TextField) grid.getChildren().get(a + 2);
                         String impermissibleTeamNumber = lowerTextField.getText();
                         TextField upperTextField = (TextField) grid.getChildren().get(a - 1);
@@ -156,25 +169,49 @@ public class MockTrialTabulation extends Application {
 
         Button okayButton = new Button("Next Team");
         okayButton.setOnAction((ActionEvent e) -> {
-            final List<Integer> impermissibleMatches = new ArrayList<>();
-            int rowCount = getRowCount(grid);
-            for(int a = 0;a<rowCount-5;a++){
-                impermissibleMatches.add(Integer.parseInt(((TextField) grid.getChildren().get(a*3+8)).getText()));
-            }
-            tournament.addTeam(Integer.parseInt(teamNumberField.getText()), teamNameField.getText(), impermissibleMatches, isByeTeam.isSelected());
-            if (tournament.getTeams().size() == numberOfTeams) {
-                displayTabulationWindow();
+            if (!isInteger(teamNumberField.getText())) {
+                Alert notANumber = new Alert(AlertType.ERROR);
+                notANumber.setContentText("The text entered for the team number"
+                        + " is not a valid team number. "
+                        + "Please enter a valid team number.");
+                notANumber.showAndWait();
             } else {
-
-                for (int i = grid.getChildren().size() - 1; i > 6; i--) {
-                    grid.getChildren().remove(i);
+                int impermissibleMatchesAllNumbers = 0;
+                int rowCount = getRowCount(grid);
+                final ArrayList<Integer> impermissibleMatches = new ArrayList<>();
+                for (int a = 0; a < rowCount - 5; a++) {
+                    if (!isInteger(((TextField) grid.getChildren().get(a * 3 + 8)).getText())) {
+                        impermissibleMatchesAllNumbers = a + 1;
+                    } else {
+                        impermissibleMatches.add(Integer.parseInt(((TextField) grid.getChildren().get(a * 3 + 8)).getText()));
+                    }
                 }
-                teamNumberField.setText("");
-                teamNameField.setText("");
-                isByeTeam.setSelected(false);
-            }
-            if (tournament.getTeams().size() == numberOfTeams - 1) {
-                okayButton.setText("Continue");
+                if (impermissibleMatchesAllNumbers != 0) {
+                    Alert notANumber = new Alert(AlertType.ERROR);
+                    notANumber.setContentText("The text entered for impermissible"
+                            + " match " + (impermissibleMatchesAllNumbers) + " is "
+                            + "not a valid team number. "
+                            + "Please enter a valid team number.");
+                    notANumber.showAndWait();
+                } else {
+                    tournament.addTeam(Integer.parseInt(teamNumberField.getText()), teamNameField.getText(), impermissibleMatches, isByeTeam.isSelected());
+                    if (tournament.getTeams().size() == numberOfTeams) {
+                        displayTabulationWindow();
+                    } else {
+
+                        for (int i = grid.getChildren().size() - 1; i > 6; i--) {
+                            grid.getChildren().remove(i);
+                        }
+                        teamNumberField.setText("");
+                        teamNameField.setText("");
+                        isByeTeam.setSelected(false);
+                        GridPane.setRowIndex(grid.getChildren().get(6), 4);
+                        GridPane.setRowIndex(grid.getChildren().get(5), 3);
+                    }
+                    if (tournament.getTeams().size() == numberOfTeams - 1) {
+                        okayButton.setText("Continue");
+                    }
+                }
             }
         });
         grid.add(okayButton, 1, 4);
@@ -183,6 +220,7 @@ public class MockTrialTabulation extends Application {
     }
 
     private void displayTabulationWindow() {
+        save.setDisable(false);
         final Button[] teamNumberButtons = new Button[tournament.getTeams().size()];
         final Label[] teamNameLabels = new Label[tournament.getTeams().size()];
         final Label[][] teamSideLabels = new Label[tournament.getTeams().size()][4];
@@ -330,7 +368,7 @@ public class MockTrialTabulation extends Application {
         final Label[] vsText = new Label[proposedPairings.length];
         final Stage pairingConfirmation = new Stage();
         GridPane grid = new GridPane();
-        
+
         for (int a = 0; a < proposedPairings.length; a++) {
             teamSelectors[a][0] = new ComboBox();
             teamSelectors[a][1] = new ComboBox();
@@ -425,4 +463,28 @@ public class MockTrialTabulation extends Application {
         }
         return numRows;
     }
+
+    public static boolean isInteger(String s) {
+        return isInteger(s, 10);
+    }
+
+    public static boolean isInteger(String s, int radix) {
+        if (s.isEmpty()) {
+            return false;
+        }
+        for (int i = 0; i < s.length(); i++) {
+            if (i == 0 && s.charAt(i) == '-') {
+                if (s.length() == 1) {
+                    return false;
+                } else {
+                    continue;
+                }
+            }
+            if (Character.digit(s.charAt(i), radix) < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
