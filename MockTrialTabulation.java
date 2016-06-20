@@ -14,8 +14,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * "isIntenger" methods written by corsiKa:
- * https://stackoverflow.com/users/330057/corsika
  */
 package com.allenbarr.MockTrialTabulation;
 
@@ -28,10 +26,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -39,9 +35,12 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -271,6 +270,48 @@ public class MockTrialTabulation extends Application {
             teamPDFields[a][5].setText(Integer.toString(tournament.getTeam(a).getRound3Ballot2PD()));
             teamPDFields[a][6].setText(Integer.toString(tournament.getTeam(a).getRound4Ballot1PD()));
             teamPDFields[a][7].setText(Integer.toString(tournament.getTeam(a).getRound4Ballot2PD()));
+            //This for loop a derivative work of Marco Jakob: http://code.makery.ch/blog/javafx-8-event-handling-examples/
+            for (int b = 0; b < 8; b++) {
+                teamPDFields[a][b].textProperty().addListener((observable, oldValue, newValue) -> {
+                    for (int c = 0; c < teamPDFields.length; c++) {
+                        for (int d = 0; d < teamPDFields[c].length; d++) {
+                            if (!isInteger(teamPDFields[c][d].getText())
+                                    || Integer.parseInt(teamPDFields[c][d].getText()) < -140
+                                    || Integer.parseInt(teamPDFields[c][d].getText()) > 140) {
+                                teamPDFields[c][d].setBackground(new Background(new BackgroundFill(Color.LIGHTCORAL,null,null)));
+                            } else {
+                                switch (d) {
+                                    case 0:
+                                        tournament.getTeam(c).setRound1Ballot1PD(Integer.parseInt(teamPDFields[c][d].getText()));
+                                        break;
+                                    case 1:
+                                        tournament.getTeam(c).setRound1Ballot2PD(Integer.parseInt(teamPDFields[c][d].getText()));
+                                        break;
+                                    case 2:
+                                        tournament.getTeam(c).setRound2Ballot1PD(Integer.parseInt(teamPDFields[c][d].getText()));
+                                        break;
+                                    case 3:
+                                        tournament.getTeam(c).setRound2Ballot2PD(Integer.parseInt(teamPDFields[c][d].getText()));
+                                        break;
+                                    case 4:
+                                        tournament.getTeam(c).setRound3Ballot1PD(Integer.parseInt(teamPDFields[c][d].getText()));
+                                        break;
+                                    case 5:
+                                        tournament.getTeam(c).setRound3Ballot2PD(Integer.parseInt(teamPDFields[c][d].getText()));
+                                        break;
+                                    case 6:
+                                        tournament.getTeam(c).setRound4Ballot1PD(Integer.parseInt(teamPDFields[c][d].getText()));
+                                        break;
+                                    case 7:
+                                        tournament.getTeam(c).setRound4Ballot2PD(Integer.parseInt(teamPDFields[c][d].getText()));
+                                        break;
+                                }
+                                teamPDFields[c][d].setBackground(new Background(new BackgroundFill(Color.WHITE,null,null)));
+                            }
+                        }
+                    }
+                });
+            }
 
             teamRecordLabels[a] = new Label(tournament.getTeam(a).getWins() + "-" + tournament.getTeam(a).getLoses() + "-" + tournament.getTeam(a).getTies());
             teamCSLabels[a] = new Label("CS: " + tournament.getTeamCS(tournament.getTeam(a).getTeamNumber()));
@@ -304,18 +345,8 @@ public class MockTrialTabulation extends Application {
         } else {
             roundOddEvenPlaintiffLabel.setText("In round 3, odd pairings flip sides");
         }
-        Button savePDsToTournament = new Button("Write Point Differentials");
+        Button savePDsToTournament = new Button("Update Statistics");
         savePDsToTournament.setOnAction(e -> {
-            for (int a = 0; a < tournament.getTeams().size(); a++) {
-                tournament.getTeam(a).setRound1Ballot1PD(Integer.parseInt(teamPDFields[a][0].getText()));
-                tournament.getTeam(a).setRound1Ballot2PD(Integer.parseInt(teamPDFields[a][1].getText()));
-                tournament.getTeam(a).setRound2Ballot1PD(Integer.parseInt(teamPDFields[a][2].getText()));
-                tournament.getTeam(a).setRound2Ballot2PD(Integer.parseInt(teamPDFields[a][3].getText()));
-                tournament.getTeam(a).setRound3Ballot1PD(Integer.parseInt(teamPDFields[a][4].getText()));
-                tournament.getTeam(a).setRound3Ballot2PD(Integer.parseInt(teamPDFields[a][5].getText()));
-                tournament.getTeam(a).setRound4Ballot1PD(Integer.parseInt(teamPDFields[a][6].getText()));
-                tournament.getTeam(a).setRound4Ballot2PD(Integer.parseInt(teamPDFields[a][7].getText()));
-            }
             displayTabulationWindow();
         });
         HBox upperHBox = new HBox();
@@ -464,10 +495,12 @@ public class MockTrialTabulation extends Application {
         return numRows;
     }
 
+    //CC BY-SA 3.0 https://stackoverflow.com/users/330057/corsika
     public static boolean isInteger(String s) {
         return isInteger(s, 10);
     }
 
+    //CC BY-SA 3.0 https://stackoverflow.com/users/330057/corsika
     public static boolean isInteger(String s, int radix) {
         if (s.isEmpty()) {
             return false;
