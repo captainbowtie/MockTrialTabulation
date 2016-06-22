@@ -37,6 +37,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -57,6 +58,7 @@ public class MockTrialTabulation extends Application {
     final private MenuItem open = new MenuItem("Open...");
     private Tournament tournament = new Tournament();
     final private Stage primaryStage = new Stage();
+    private boolean firstPDChange = true;
 
     @Override
     public void start(Stage primaryStage) {
@@ -270,45 +272,74 @@ public class MockTrialTabulation extends Application {
             teamPDFields[a][5].setText(Integer.toString(tournament.getTeam(a).getRound3Ballot2PD()));
             teamPDFields[a][6].setText(Integer.toString(tournament.getTeam(a).getRound4Ballot1PD()));
             teamPDFields[a][7].setText(Integer.toString(tournament.getTeam(a).getRound4Ballot2PD()));
-            //This for loop a derivative work of Marco Jakob: http://code.makery.ch/blog/javafx-8-event-handling-examples/
+            //This for loop a derivative work of code by Marco Jakob: http://code.makery.ch/blog/javafx-8-event-handling-examples/
             for (int b = 0; b < 8; b++) {
                 teamPDFields[a][b].textProperty().addListener((observable, oldValue, newValue) -> {
-                    for (int c = 0; c < teamPDFields.length; c++) {
-                        for (int d = 0; d < teamPDFields[c].length; d++) {
-                            if (!isInteger(teamPDFields[c][d].getText())
-                                    || Integer.parseInt(teamPDFields[c][d].getText()) < -140
-                                    || Integer.parseInt(teamPDFields[c][d].getText()) > 140) {
-                                teamPDFields[c][d].setBackground(new Background(new BackgroundFill(Color.LIGHTCORAL,null,null)));
-                            } else {
-                                switch (d) {
-                                    case 0:
-                                        tournament.getTeam(c).setRound1Ballot1PD(Integer.parseInt(teamPDFields[c][d].getText()));
-                                        break;
-                                    case 1:
-                                        tournament.getTeam(c).setRound1Ballot2PD(Integer.parseInt(teamPDFields[c][d].getText()));
-                                        break;
-                                    case 2:
-                                        tournament.getTeam(c).setRound2Ballot1PD(Integer.parseInt(teamPDFields[c][d].getText()));
-                                        break;
-                                    case 3:
-                                        tournament.getTeam(c).setRound2Ballot2PD(Integer.parseInt(teamPDFields[c][d].getText()));
-                                        break;
-                                    case 4:
-                                        tournament.getTeam(c).setRound3Ballot1PD(Integer.parseInt(teamPDFields[c][d].getText()));
-                                        break;
-                                    case 5:
-                                        tournament.getTeam(c).setRound3Ballot2PD(Integer.parseInt(teamPDFields[c][d].getText()));
-                                        break;
-                                    case 6:
-                                        tournament.getTeam(c).setRound4Ballot1PD(Integer.parseInt(teamPDFields[c][d].getText()));
-                                        break;
-                                    case 7:
-                                        tournament.getTeam(c).setRound4Ballot2PD(Integer.parseInt(teamPDFields[c][d].getText()));
-                                        break;
+                    if (firstPDChange) {
+                        firstPDChange = false;
+                        for (int c = 0; c < tournament.getTeams().size(); c++) {
+                            for (int d = 0; d < 8; d++) {
+                                if (teamPDFields[c][d].textProperty().equals(observable)) {
+                                    if (isInteger(newValue) && Integer.parseInt(newValue) < 141 && Integer.parseInt(newValue) > -141) {
+                                        int opponentIndex = 0;
+                                        switch (d) {
+                                            case 0:
+                                                tournament.getTeam(c).setRound1Ballot1PD(Integer.parseInt(newValue));
+                                                opponentIndex = tournament.getTeamIndex(tournament.getTeam(c).getRound1Opponent());
+                                                teamPDFields[opponentIndex][d].setText(Integer.toString(-1 * Integer.parseInt(newValue)));
+                                                tournament.getTeam(opponentIndex).setRound1Ballot1PD(-1 * Integer.parseInt(newValue));
+                                                break;
+                                            case 1:
+                                                tournament.getTeam(c).setRound1Ballot2PD(Integer.parseInt(newValue));
+                                                opponentIndex = tournament.getTeamIndex(tournament.getTeam(c).getRound1Opponent());
+                                                teamPDFields[opponentIndex][d].setText(Integer.toString(-1 * Integer.parseInt(newValue)));
+                                                tournament.getTeam(opponentIndex).setRound1Ballot2PD(-1 * Integer.parseInt(newValue));
+                                                break;
+                                            case 2:
+                                                tournament.getTeam(c).setRound2Ballot1PD(Integer.parseInt(newValue));
+                                                opponentIndex = tournament.getTeamIndex(tournament.getTeam(c).getRound2Opponent());
+                                                teamPDFields[opponentIndex][d].setText(Integer.toString(-1 * Integer.parseInt(newValue)));
+                                                tournament.getTeam(opponentIndex).setRound2Ballot1PD(-1 * Integer.parseInt(newValue));
+                                                break;
+                                            case 3:
+                                                tournament.getTeam(c).setRound2Ballot2PD(Integer.parseInt(newValue));
+                                                opponentIndex = tournament.getTeamIndex(tournament.getTeam(c).getRound2Opponent());
+                                                teamPDFields[opponentIndex][d].setText(Integer.toString(-1 * Integer.parseInt(newValue)));
+                                                tournament.getTeam(opponentIndex).setRound2Ballot2PD(-1 * Integer.parseInt(newValue));
+                                                break;
+                                            case 4:
+                                                tournament.getTeam(c).setRound3Ballot1PD(Integer.parseInt(newValue));
+                                                opponentIndex = tournament.getTeamIndex(tournament.getTeam(c).getRound3Opponent());
+                                                teamPDFields[opponentIndex][d].setText(Integer.toString(-1 * Integer.parseInt(newValue)));
+                                                tournament.getTeam(opponentIndex).setRound3Ballot1PD(-1 * Integer.parseInt(newValue));
+                                                break;
+                                            case 5:
+                                                tournament.getTeam(c).setRound3Ballot2PD(Integer.parseInt(newValue));
+                                                opponentIndex = tournament.getTeamIndex(tournament.getTeam(c).getRound3Opponent());
+                                                teamPDFields[opponentIndex][d].setText(Integer.toString(-1 * Integer.parseInt(newValue)));
+                                                tournament.getTeam(opponentIndex).setRound3Ballot2PD(-1 * Integer.parseInt(newValue));
+                                                break;
+                                            case 6:
+                                                tournament.getTeam(c).setRound4Ballot1PD(Integer.parseInt(newValue));
+                                                opponentIndex = tournament.getTeamIndex(tournament.getTeam(c).getRound4Opponent());
+                                                teamPDFields[opponentIndex][d].setText(Integer.toString(-1 * Integer.parseInt(newValue)));
+                                                tournament.getTeam(opponentIndex).setRound4Ballot1PD(-1 * Integer.parseInt(newValue));
+                                                break;
+                                            case 7:
+                                                tournament.getTeam(c).setRound4Ballot2PD(Integer.parseInt(newValue));
+                                                opponentIndex = tournament.getTeamIndex(tournament.getTeam(c).getRound4Opponent());
+                                                teamPDFields[opponentIndex][d].setText(Integer.toString(-1 * Integer.parseInt(newValue)));
+                                                tournament.getTeam(opponentIndex).setRound4Ballot2PD(-1 * Integer.parseInt(newValue));
+                                                break;
+                                        }
+                                        teamPDFields[c][d].setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+                                    } else {
+                                        teamPDFields[c][d].setBackground(new Background(new BackgroundFill(Color.LIGHTCORAL, null, null)));
+                                    }
                                 }
-                                teamPDFields[c][d].setBackground(new Background(new BackgroundFill(Color.WHITE,null,null)));
                             }
                         }
+                        firstPDChange = true;
                     }
                 });
             }
