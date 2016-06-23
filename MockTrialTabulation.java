@@ -21,6 +21,7 @@ import java.io.File;
 import java.util.ArrayList;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -332,12 +333,17 @@ public class MockTrialTabulation extends Application {
                                                 tournament.getTeam(opponentIndex).setRound4Ballot2PD(-1 * Integer.parseInt(newValue));
                                                 break;
                                         }
-                                        teamPDFields[c][d].setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+                                        teamPDFields[c][d].setBackground(new Background(new BackgroundFill(Color.WHITE, new CornerRadii(3.0), new Insets(0.0))));
                                     } else {
                                         teamPDFields[c][d].setBackground(new Background(new BackgroundFill(Color.LIGHTCORAL, null, null)));
                                     }
                                 }
                             }
+                        }
+                        for (int c = 0; c < tournament.getTeams().size(); c++) {
+                            teamRecordLabels[c].setText(tournament.getTeam(c).getWins() + "-" + tournament.getTeam(c).getLoses() + "-" + tournament.getTeam(c).getTies());
+                            teamCSLabels[c].setText("CS: " + tournament.getTeamCS(tournament.getTeam(c).getTeamNumber()));
+                            teamPDLabels[c].setText("PD: " + tournament.getTeam(c).getPD());
                         }
                         firstPDChange = true;
                     }
@@ -376,14 +382,9 @@ public class MockTrialTabulation extends Application {
         } else {
             roundOddEvenPlaintiffLabel.setText("In round 3, odd pairings flip sides");
         }
-        Button savePDsToTournament = new Button("Update Statistics");
-        savePDsToTournament.setOnAction(e -> {
-            displayTabulationWindow();
-        });
         HBox upperHBox = new HBox();
         upperHBox.getChildren().add(teamNumberHighLowLabel);
         upperHBox.getChildren().add(roundOddEvenPlaintiffLabel);
-        upperHBox.getChildren().add(savePDsToTournament);
         upperHBox.setSpacing(5);
 
         //Pairing Buttons
