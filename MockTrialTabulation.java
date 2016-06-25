@@ -44,6 +44,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -98,7 +99,13 @@ public class MockTrialTabulation extends Application {
                         + "teams is not a valid number. "
                         + "Please enter a valid number.");
                 notANumber.showAndWait();
-            } else {
+            } else if (Integer.parseInt(numberOfTeams.getText()) < 8) {
+                Alert notEnoughTeams = new Alert(AlertType.ERROR);
+                notEnoughTeams.setContentText("You need at least eight teams at"
+                        + "your tournament to use this program.");
+                notEnoughTeams.showAndWait();
+            }
+            {
                 displayTeamDataPrompt(Integer.parseInt(numberOfTeams.getText()));
             }
 
@@ -396,16 +403,92 @@ public class MockTrialTabulation extends Application {
         Button generateTabSummary = new Button("Generate Tab Summary");
 
         pairRound1.setOnAction(e -> {
-            displayPairingConfirmationDialog(tournament.pairRound1(), 1);
+            boolean pointDifferentialsSane = true;
+            for (int a = 0; a < tournament.getTeams().size(); a++) {
+                for (int b = 0; b < 8; b++) {
+                    String text = teamPDFields[a][b].getText();
+                    if (!isInteger(text) || Integer.parseInt(text) > 140 || Integer.parseInt(text) < -140) {
+                        pointDifferentialsSane = false;
+                        Alert pdError = new Alert(AlertType.ERROR);
+                        pdError.setContentText("There is an error in the point "
+                                + "differentials. Please review the round " +
+                                b/2+1 + " entry for team "+tournament.getTeam(a).getTeamNumber());
+                        pdError.showAndWait();
+                        b=8;
+                        a=tournament.getTeams().size();
+                    }
+                }
+            }
+            if (pointDifferentialsSane) {
+                displayPairingConfirmationDialog(tournament.pairRound1(), 1);
+            }
+
         });
         pairRound2.setOnAction(e -> {
-            displayPairingConfirmationDialog(tournament.pairRound2(), 2);
+            boolean pointDifferentialsSane = true;
+            for (int a = 0; a < tournament.getTeams().size(); a++) {
+                for (int b = 0; b < 8; b++) {
+                    String text = teamPDFields[a][b].getText();
+                    if (!isInteger(text) || Integer.parseInt(text) > 140 || Integer.parseInt(text) < -140) {
+                        pointDifferentialsSane = false;
+                        Alert pdError = new Alert(AlertType.ERROR);
+                        pdError.setContentText("There is an error in the point "
+                                + "differentials. Please review the round " +
+                                b/2+1 + " entry for team "+tournament.getTeam(a).getTeamNumber());
+                        pdError.showAndWait();
+                        b=8;
+                        a=tournament.getTeams().size();
+                    }
+                }
+            }
+            if (pointDifferentialsSane) {
+                displayPairingConfirmationDialog(tournament.pairRound2(), 2);
+            }
+
         });
         pairRound3.setOnAction(e -> {
-            displayPairingConfirmationDialog(tournament.pairRound3(), 3);
+            boolean pointDifferentialsSane = true;
+            for (int a = 0; a < tournament.getTeams().size(); a++) {
+                for (int b = 0; b < 8; b++) {
+                    String text = teamPDFields[a][b].getText();
+                    if (!isInteger(text) || Integer.parseInt(text) > 140 || Integer.parseInt(text) < -140) {
+                        pointDifferentialsSane = false;
+                        Alert pdError = new Alert(AlertType.ERROR);
+                        pdError.setContentText("There is an error in the point "
+                                + "differentials. Please review the round " +
+                                b/2+1 + " entry for team "+tournament.getTeam(a).getTeamNumber());
+                        pdError.showAndWait();
+                        b=8;
+                        a=tournament.getTeams().size();
+                    }
+                }
+            }
+            if (pointDifferentialsSane) {
+                displayPairingConfirmationDialog(tournament.pairRound3(), 3);
+            }
+
         });
         pairRound4.setOnAction(e -> {
-            displayPairingConfirmationDialog(tournament.pairRound4(), 4);
+            boolean pointDifferentialsSane = true;
+            for (int a = 0; a < tournament.getTeams().size(); a++) {
+                for (int b = 0; b < 8; b++) {
+                    String text = teamPDFields[a][b].getText();
+                    if (!isInteger(text) || Integer.parseInt(text) > 140 || Integer.parseInt(text) < -140) {
+                        pointDifferentialsSane = false;
+                        Alert pdError = new Alert(AlertType.ERROR);
+                        pdError.setContentText("There is an error in the point "
+                                + "differentials. Please review the round " +
+                                b/2+1 + " entry for team "+tournament.getTeam(a).getTeamNumber());
+                        pdError.showAndWait();
+                        b=8;
+                        a=tournament.getTeams().size();
+                    }
+                }
+            }
+            if (pointDifferentialsSane) {
+                displayPairingConfirmationDialog(tournament.pairRound4(), 4);
+            }
+
         });
         generateTabSummary.setOnAction(e -> {
             generateTabSummaryPrompt();
@@ -486,8 +569,10 @@ public class MockTrialTabulation extends Application {
     private void saveTournament() {
         FileChooser saveLocationChooser = new FileChooser();
         saveLocationChooser.setTitle("Save Tournament");
+        saveLocationChooser.setInitialFileName("Untitled.csv");
+        saveLocationChooser.getExtensionFilters().add(new ExtensionFilter("Mock Trial Tabulation Files", "*.csv"));
         File saveLocation = saveLocationChooser.showSaveDialog(new Stage());
-        SpreadsheetHandler.saveToSpreadsheet(tournament, saveLocation);
+
     }
 
     /**
@@ -495,15 +580,23 @@ public class MockTrialTabulation extends Application {
      * passes that location on to a class which reads the tournament from the
      * location
      *
-     * @param primaryStage included until I figure out how to better pass stages
-     * around
      */
     private void loadTournament() {
         FileChooser openLocationChooser = new FileChooser();
         openLocationChooser.setTitle("Open Tournament");
+        openLocationChooser.getExtensionFilters().add(new ExtensionFilter("Mock Trial Tabulation Files", "*.csv"));
         File tournamentFileLocation = openLocationChooser.showOpenDialog(new Stage());
-        tournament = SpreadsheetHandler.loadFromSpreadsheet(tournamentFileLocation);
-        displayTabulationWindow();
+        if (tournamentFileLocation != null && tournamentFileLocation.exists()) {
+            try {
+                tournament = SpreadsheetHandler.loadFromSpreadsheet(tournamentFileLocation);
+                displayTabulationWindow();
+            } catch (Exception e) {
+                Alert loadError = new Alert(AlertType.ERROR);
+                loadError.setContentText("Unable to load tournament from"
+                        + " specified file. Technical details: " + e.toString());
+                loadError.showAndWait();
+            }
+        }
     }
 
     private void generateTabSummaryPrompt() {
