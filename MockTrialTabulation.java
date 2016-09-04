@@ -27,7 +27,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -411,11 +414,11 @@ public class MockTrialTabulation extends Application {
                         pointDifferentialsSane = false;
                         Alert pdError = new Alert(AlertType.ERROR);
                         pdError.setContentText("There is an error in the point "
-                                + "differentials. Please review the round " +
-                                b/2+1 + " entry for team "+tournament.getTeam(a).getTeamNumber());
+                                + "differentials. Please review the round "
+                                + b / 2 + 1 + " entry for team " + tournament.getTeam(a).getTeamNumber());
                         pdError.showAndWait();
-                        b=8;
-                        a=tournament.getTeams().size();
+                        b = 8;
+                        a = tournament.getTeams().size();
                     }
                 }
             }
@@ -433,11 +436,11 @@ public class MockTrialTabulation extends Application {
                         pointDifferentialsSane = false;
                         Alert pdError = new Alert(AlertType.ERROR);
                         pdError.setContentText("There is an error in the point "
-                                + "differentials. Please review the round " +
-                                b/2+1 + " entry for team "+tournament.getTeam(a).getTeamNumber());
+                                + "differentials. Please review the round "
+                                + b / 2 + 1 + " entry for team " + tournament.getTeam(a).getTeamNumber());
                         pdError.showAndWait();
-                        b=8;
-                        a=tournament.getTeams().size();
+                        b = 8;
+                        a = tournament.getTeams().size();
                     }
                 }
             }
@@ -455,11 +458,11 @@ public class MockTrialTabulation extends Application {
                         pointDifferentialsSane = false;
                         Alert pdError = new Alert(AlertType.ERROR);
                         pdError.setContentText("There is an error in the point "
-                                + "differentials. Please review the round " +
-                                b/2+1 + " entry for team "+tournament.getTeam(a).getTeamNumber());
+                                + "differentials. Please review the round "
+                                + b / 2 + 1 + " entry for team " + tournament.getTeam(a).getTeamNumber());
                         pdError.showAndWait();
-                        b=8;
-                        a=tournament.getTeams().size();
+                        b = 8;
+                        a = tournament.getTeams().size();
                     }
                 }
             }
@@ -477,11 +480,11 @@ public class MockTrialTabulation extends Application {
                         pointDifferentialsSane = false;
                         Alert pdError = new Alert(AlertType.ERROR);
                         pdError.setContentText("There is an error in the point "
-                                + "differentials. Please review the round " +
-                                b/2+1 + " entry for team "+tournament.getTeam(a).getTeamNumber());
+                                + "differentials. Please review the round "
+                                + b / 2 + 1 + " entry for team " + tournament.getTeam(a).getTeamNumber());
                         pdError.showAndWait();
-                        b=8;
-                        a=tournament.getTeams().size();
+                        b = 8;
+                        a = tournament.getTeams().size();
                     }
                 }
             }
@@ -541,6 +544,50 @@ public class MockTrialTabulation extends Application {
         Button acceptButton = new Button("Accept");
         acceptButton.setDefaultButton(true);
         acceptButton.setOnAction(e -> {
+            for (int a = 0; a < teamSelectors.length; a++) {
+                boolean impermissibleMatch = tournament.getTeam(teamSelectors[a][0].getSelectionModel().getSelectedIndex()).getImpermissibleMatches().contains(tournament.getTeam(teamSelectors[a][1].getSelectionModel().getSelectedIndex()).getTeamNumber());
+                if (impermissibleMatch) {
+                    Alert confirmImpermissible = new Alert(Alert.AlertType.CONFIRMATION);
+                    confirmImpermissible.setContentText("You have an impermissible match.");
+                    ((Button) confirmImpermissible.getDialogPane().lookupButton(ButtonType.OK)).setText("Pair Anyway");
+                    confirmImpermissible.showAndWait();
+                }
+                boolean wrongP = false;
+                boolean wrongD = false;
+                if (roundNumber == 2) {
+                    wrongP = tournament.getTeam(teamSelectors[a][0].getSelectionModel().getSelectedIndex()).isRound1Plaintiff();
+                    wrongD = !tournament.getTeam(teamSelectors[a][1].getSelectionModel().getSelectedIndex()).isRound1Plaintiff();
+                } else if (roundNumber == 4) {
+                    wrongP = tournament.getTeam(teamSelectors[a][0].getSelectionModel().getSelectedIndex()).isRound3Plaintiff();
+                    wrongD = !tournament.getTeam(teamSelectors[a][1].getSelectionModel().getSelectedIndex()).isRound3Plaintiff();
+                }
+                if (wrongP) {
+                    Alert confirmWrongP = new Alert(Alert.AlertType.CONFIRMATION);
+                    confirmWrongP.setContentText("You have a team going plaintiff in both round 1 and round 2. NOTE: EVENTUALLY THIS PROGRAM WILL SUPPORT THIS, BUT RIGHT NOW IT DOES NOT. YOU SHOULD HIT CANCEL.");
+                    ((Button) confirmWrongP.getDialogPane().lookupButton(ButtonType.OK)).setText("Pair Anyway");
+                    confirmWrongP.showAndWait();
+                }
+                if (wrongD) {
+                    Alert confirmWrongD = new Alert(Alert.AlertType.CONFIRMATION);
+                    confirmWrongD.setContentText("You have a team going defense in both round 1 and round 2. NOTE: EVENTUALLY THIS PROGRAM WILL SUPPORT THIS, BUT RIGHT NOW IT DOES NOT. YOU SHOULD HIT CANCEL.");
+                    ((Button) confirmWrongD.getDialogPane().lookupButton(ButtonType.OK)).setText("Pair Anyway");
+                    confirmWrongD.showAndWait();
+                }
+
+            }
+            boolean[] teamPresent = new boolean[tournament.getTeams().size()];
+            for (int a = 0; a < teamSelectors.length; a++) {
+                teamPresent[teamSelectors[a][0].getSelectionModel().getSelectedIndex()] = true;
+                teamPresent[teamSelectors[a][1].getSelectionModel().getSelectedIndex()] = true;
+            }
+            for(int a = 0;a<teamPresent.length;a++){
+                if(teamPresent[a] == false){
+                    Alert confirmMissingTeam = new Alert(Alert.AlertType.CONFIRMATION);
+                    confirmMissingTeam.setContentText("You are missing team XXXX. NOTE: EVENTUALLY THIS PROGRAM WILL SUPPORT THIS, BUT RIGHT NOW IT DOES NOT. YOU SHOULD HIT CANCEL.");
+                    ((Button) confirmMissingTeam.getDialogPane().lookupButton(ButtonType.OK)).setText("They got bored and left. Pair anyway.");
+                    confirmMissingTeam.showAndWait();
+                }
+            }
             int[][] pairings = new int[proposedPairings.length][2];
             for (int a = 0; a < pairings.length; a++) {
                 pairings[a][0] = teamSelectors[a][0].getSelectionModel().getSelectedIndex();
