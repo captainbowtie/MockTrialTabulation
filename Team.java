@@ -16,6 +16,7 @@
  */
 package com.allenbarr.MockTrialTabulation;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,8 @@ import java.util.List;
  *
  * @author captainbowtie
  */
-public class Team {
+public class Team implements Serializable {
+    private static final long serialVersionUID = 20160904;
 
     private int teamNumber = 0;
     private String teamName = "N/A";

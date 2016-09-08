@@ -17,8 +17,17 @@
  */
 package com.allenbarr.MockTrialTabulation;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -64,6 +73,12 @@ public class MockTrialTabulation extends Application {
     private Tournament tournament = new Tournament();
     final private Stage primaryStage = new Stage();
     private boolean firstPDChange = true;
+    private boolean localProcessing = false;
+    Socket socket = null;
+    private ObjectOutputStream oos;
+    private ObjectInputStream ois;
+    PrintWriter toServer;
+    BufferedReader fromServer;
 
     @Override
     public void start(Stage primaryStage) {
@@ -81,6 +96,16 @@ public class MockTrialTabulation extends Application {
         });
         save.setAccelerator(KeyCombination.keyCombination("Meta+S"));
         save.setDisable(true);
+        try {
+            //TODO: prompt for server
+            socket = new Socket("localhost", 1985);
+            toServer = new PrintWriter(socket.getOutputStream(), true);
+            fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            oos = new ObjectOutputStream(this.socket.getOutputStream());
+            ois = new ObjectInputStream(this.socket.getInputStream());
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     private void displayTeamNumberPrompt() {
@@ -580,8 +605,8 @@ public class MockTrialTabulation extends Application {
                 teamPresent[teamSelectors[a][0].getSelectionModel().getSelectedIndex()] = true;
                 teamPresent[teamSelectors[a][1].getSelectionModel().getSelectedIndex()] = true;
             }
-            for(int a = 0;a<teamPresent.length;a++){
-                if(teamPresent[a] == false){
+            for (int a = 0; a < teamPresent.length; a++) {
+                if (teamPresent[a] == false) {
                     Alert confirmMissingTeam = new Alert(Alert.AlertType.CONFIRMATION);
                     confirmMissingTeam.setContentText("You are missing team XXXX. NOTE: EVENTUALLY THIS PROGRAM WILL SUPPORT THIS, BUT RIGHT NOW IT DOES NOT. YOU SHOULD HIT CANCEL.");
                     ((Button) confirmMissingTeam.getDialogPane().lookupButton(ButtonType.OK)).setText("They got bored and left. Pair anyway.");
@@ -614,12 +639,26 @@ public class MockTrialTabulation extends Application {
      * around
      */
     private void saveTournament() {
-        FileChooser saveLocationChooser = new FileChooser();
-        saveLocationChooser.setTitle("Save Tournament");
-        saveLocationChooser.setInitialFileName("Untitled.csv");
-        saveLocationChooser.getExtensionFilters().add(new ExtensionFilter("Mock Trial Tabulation Files", "*.csv"));
-        File saveLocation = saveLocationChooser.showSaveDialog(new Stage());
+        if (localProcessing) {
+            FileChooser saveLocationChooser = new FileChooser();
+            saveLocationChooser.setTitle("Save Tournament");
+            saveLocationChooser.setInitialFileName("Untitled.csv");
+            saveLocationChooser.getExtensionFilters().add(new ExtensionFilter("Mock Trial Tabulation Files", "*.csv"));
+            File saveLocation = saveLocationChooser.showSaveDialog(new Stage());
+        } else {
+            //TODO: make prompt for url rather than hard coded server
+            toServer.println("setTournament");
+            String checkResponse = null;
+            try {
+                checkResponse = fromServer.readLine();
+                if (checkResponse.equals("setTournament")) {
+                    oos.writeObject(tournament);
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
+            }
 
+        }
     }
 
     /**
@@ -629,6 +668,7 @@ public class MockTrialTabulation extends Application {
      *
      */
     private void loadTournament() {
+        if(localProcessing){
         FileChooser openLocationChooser = new FileChooser();
         openLocationChooser.setTitle("Open Tournament");
         openLocationChooser.getExtensionFilters().add(new ExtensionFilter("Mock Trial Tabulation Files", "*.csv"));
@@ -642,6 +682,19 @@ public class MockTrialTabulation extends Application {
                 loadError.setContentText("Unable to load tournament from"
                         + " specified file. Technical details: " + e.toString());
                 loadError.showAndWait();
+            }
+        }
+        }else{
+            toServer.println("getTournament");
+            String checkResponse = null;
+            try {
+                checkResponse = fromServer.readLine();
+                if (checkResponse.equals("getTournament")) {
+                    tournament = (Tournament)ois.readObject();
+                    displayTabulationWindow();
+                }
+            } catch (IOException | ClassNotFoundException ex) {
+                Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

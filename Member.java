@@ -16,11 +16,14 @@
  */
 package com.allenbarr.MockTrialTabulation;
 
+import java.io.Serializable;
+
 /**
  *
  * @author captainbowtie
  */
-public class Member {
+public class Member implements Serializable {
+    private static final long serialVersionUID = 20160904;
 
     private String name = "N/A";
     private int[] plaintiffAttorneyRanks = {0, 0, 0, 0};

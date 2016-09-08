@@ -17,6 +17,7 @@
 package com.allenbarr.MockTrialTabulation;
 
 import java.io.File;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,8 @@ import java.util.Random;
  *
  * @author captainbowtie
  */
-public class Tournament {
+public class Tournament implements Serializable {
+    private static final long serialVersionUID = 20160904;
 
     private final boolean lowerTeamNumberIsHigherRank;
     private final boolean round3Rank1IsPlaintiff;
