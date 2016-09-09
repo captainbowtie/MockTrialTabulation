@@ -36,16 +36,15 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Background;
@@ -69,43 +68,40 @@ public class MockTrialTabulation extends Application {
     final private MenuBar menuBar = new MenuBar();
     final private Menu fileMenu = new Menu("File");
     final private MenuItem save = new MenuItem("Save...");
+    final private MenuItem saveToServer = new MenuItem("Save to Server...");
     final private MenuItem open = new MenuItem("Open...");
+    final private MenuItem openFromServer = new MenuItem("Open from Server...");
     private Tournament tournament = new Tournament();
     final private Stage primaryStage = new Stage();
     private boolean firstPDChange = true;
-    private boolean localProcessing = false;
-    Socket socket = null;
-    private ObjectOutputStream oos;
-    private ObjectInputStream ois;
-    PrintWriter toServer;
-    BufferedReader fromServer;
+   
 
     @Override
     public void start(Stage primaryStage) {
         displayTeamNumberPrompt();
         fileMenu.getItems().add(open);
+        fileMenu.getItems().add(openFromServer);
+        fileMenu.getItems().add(new SeparatorMenuItem());
         fileMenu.getItems().add(save);
+        fileMenu.getItems().add(saveToServer);
         menuBar.getMenus().add(fileMenu);
         menuBar.setUseSystemMenuBar(true);
         open.setOnAction(e -> {
             loadTournament();
         });
         open.setAccelerator(KeyCombination.keyCombination("Meta+O"));
+        openFromServer.setOnAction(e-> {
+            loadTournamentFromServer();
+        });
         save.setOnAction(e -> {
             saveTournament();
         });
         save.setAccelerator(KeyCombination.keyCombination("Meta+S"));
         save.setDisable(true);
-        try {
-            //TODO: prompt for server
-            socket = new Socket("localhost", 1985);
-            toServer = new PrintWriter(socket.getOutputStream(), true);
-            fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            oos = new ObjectOutputStream(this.socket.getOutputStream());
-            ois = new ObjectInputStream(this.socket.getInputStream());
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        saveToServer.setOnAction(e -> {
+           saveTournamentToServer(); 
+        });
+        saveToServer.setDisable(true);
     }
 
     private void displayTeamNumberPrompt() {
@@ -132,8 +128,13 @@ public class MockTrialTabulation extends Application {
                 notEnoughTeams.setContentText("You need at least eight teams at"
                         + "your tournament to use this program.");
                 notEnoughTeams.showAndWait();
+            }else if(Integer.parseInt(numberOfTeams.getText())%2!=0){
+                Alert oddNumberTeams = new Alert(AlertType.ERROR);
+                oddNumberTeams.setContentText("You need an even number of teams at"
+                        + " a mock trial tournament.");
+                oddNumberTeams.showAndWait();
             }
-            {
+            else{
                 displayTeamDataPrompt(Integer.parseInt(numberOfTeams.getText()));
             }
 
@@ -258,6 +259,7 @@ public class MockTrialTabulation extends Application {
 
     private void displayTabulationWindow() {
         save.setDisable(false);
+        saveToServer.setDisable(false);
         final Button[] teamNumberButtons = new Button[tournament.getTeams().size()];
         final Label[] teamNameLabels = new Label[tournament.getTeams().size()];
         final Label[][] teamSideLabels = new Label[tournament.getTeams().size()][4];
@@ -634,30 +636,45 @@ public class MockTrialTabulation extends Application {
      * Prompts user for file location to save tournament data to, and then
      * passes that location on to a class which writes the tournament to the
      * location
-     *
-     * @param primaryStage included until I figure out how to better pass stages
-     * around
      */
     private void saveTournament() {
-        if (localProcessing) {
-            FileChooser saveLocationChooser = new FileChooser();
-            saveLocationChooser.setTitle("Save Tournament");
-            saveLocationChooser.setInitialFileName("Untitled.csv");
-            saveLocationChooser.getExtensionFilters().add(new ExtensionFilter("Mock Trial Tabulation Files", "*.csv"));
-            File saveLocation = saveLocationChooser.showSaveDialog(new Stage());
-        } else {
-            //TODO: make prompt for url rather than hard coded server
-            toServer.println("setTournament");
-            String checkResponse = null;
-            try {
-                checkResponse = fromServer.readLine();
-                if (checkResponse.equals("setTournament")) {
-                    oos.writeObject(tournament);
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        FileChooser saveLocationChooser = new FileChooser();
+        saveLocationChooser.setTitle("Save Tournament");
+        saveLocationChooser.setInitialFileName("Untitled.csv");
+        saveLocationChooser.getExtensionFilters().add(new ExtensionFilter("Mock Trial Tabulation Files", "*.csv"));
+        File saveLocation = saveLocationChooser.showSaveDialog(new Stage());
+    }
 
+    /**
+     * Prompts the user for a domain name and writes the tournament to a running
+     * mock trial tabulation server at that domain
+     */
+    private void saveTournamentToServer() {
+        //TODO: make prompt for url rather than hard coded server
+        Socket socket=null;
+        PrintWriter toServer=null;
+        BufferedReader fromServer=null;
+        ObjectOutputStream oos=null;
+        ObjectInputStream ois=null;
+        try {
+            //TODO: prompt for server
+             socket = new Socket("localhost", 1985);
+             toServer = new PrintWriter(socket.getOutputStream(), true);
+            fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            oos = new ObjectOutputStream(socket.getOutputStream());
+            ois = new ObjectInputStream(socket.getInputStream());
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        toServer.println("setTournament");
+        String checkResponse = null;
+        try {
+            checkResponse = fromServer.readLine();
+            if (checkResponse.equals("setTournament")) {
+                oos.writeObject(tournament);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -668,7 +685,6 @@ public class MockTrialTabulation extends Application {
      *
      */
     private void loadTournament() {
-        if(localProcessing){
         FileChooser openLocationChooser = new FileChooser();
         openLocationChooser.setTitle("Open Tournament");
         openLocationChooser.getExtensionFilters().add(new ExtensionFilter("Mock Trial Tabulation Files", "*.csv"));
@@ -684,18 +700,34 @@ public class MockTrialTabulation extends Application {
                 loadError.showAndWait();
             }
         }
-        }else{
-            toServer.println("getTournament");
-            String checkResponse = null;
-            try {
-                checkResponse = fromServer.readLine();
-                if (checkResponse.equals("getTournament")) {
-                    tournament = (Tournament)ois.readObject();
-                    displayTabulationWindow();
-                }
-            } catch (IOException | ClassNotFoundException ex) {
-                Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
+    }
+
+    private void loadTournamentFromServer() {
+        Socket socket=null;
+        PrintWriter toServer=null;
+        BufferedReader fromServer=null;
+        ObjectOutputStream oos=null;
+        ObjectInputStream ois=null;
+        try {
+            //TODO: prompt for server
+             socket = new Socket("localhost", 1985);
+             toServer = new PrintWriter(socket.getOutputStream(), true);
+             fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             oos = new ObjectOutputStream(socket.getOutputStream());
+             ois = new ObjectInputStream(socket.getInputStream());
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        toServer.println("getTournament");
+        String checkResponse = null;
+        try {
+            checkResponse = fromServer.readLine();
+            if (checkResponse.equals("getTournament")) {
+                tournament = (Tournament) ois.readObject();
+                displayTabulationWindow();
             }
+        } catch (IOException | ClassNotFoundException ex) {
+            ex.printStackTrace();
         }
     }
 
