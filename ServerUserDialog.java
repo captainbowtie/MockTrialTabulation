@@ -16,6 +16,8 @@
  */
 package com.allenbarr.MockTrialTabulation;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -24,6 +26,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
@@ -34,6 +37,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.beans.binding.Bindings;
+import javafx.scene.Node;
 
 public class ServerUserDialog extends Stage {
 
@@ -80,30 +85,40 @@ public class ServerUserDialog extends Stage {
             }
         }
         );
+//start new
+        TableColumn<ServerUser, StringProperty> column = new TableColumn<>("option");
+    column.setCellValueFactory(i -> {
+        final StringProperty value = i.getValue().privilegesProperty();
+        // binding to constant value
+        return Bindings.createObjectBinding(() -> value);
+    });
 
-        TableColumn privCol = new TableColumn("Priviledges");
-        privCol.setCellValueFactory(
-                new PropertyValueFactory<ServerUser, Integer>("priviledges"));
-        privCol.setCellFactory(cellFactory);
-        privCol.setOnEditCommit(
-                new EventHandler<CellEditEvent<ServerUser, Integer>>() {
-            @Override
-            public void handle(CellEditEvent<ServerUser, Integer> t) {
-                ((ServerUser) t.getTableView().getItems().get(
-                        t.getTablePosition().getRow())).setPrivileges(t.getNewValue());
+    column.setCellFactory(col -> {
+        TableCell<ServerUser, StringProperty> c = new TableCell<>();        
+        final ComboBox<String> comboBox = new ComboBox<>();
+        comboBox.getItems().addAll("NONE","CANREAD","CANWRITE");
+        c.itemProperty().addListener((observable, oldValue, newValue) -> {
+            if (oldValue != null) {
+                comboBox.valueProperty().unbindBidirectional(oldValue);
             }
-        }
-        );
+            if (newValue != null) {
+                comboBox.valueProperty().bindBidirectional(newValue);
+            }
+        });
+        c.graphicProperty().bind(Bindings.when(c.emptyProperty()).then((Node) null).otherwise(comboBox));
+        return c;
+    });//end new
 
         table.setItems(data);
-        table.getColumns().addAll(usernameCol, passwordCol, privCol);
+        table.getColumns().addAll(usernameCol, passwordCol, column);
 
         final TextField addUsername = new TextField();
         addUsername.setPromptText("Username");
         final TextField addPassword = new TextField();
         addPassword.setPromptText("Password");
-        final TextField addPriviledges = new TextField();
-        addPriviledges.setPromptText("0, 1, or 2");
+        final ComboBox addPriviledges = new ComboBox();
+        addPriviledges.getItems().addAll("NONE", "CANREAD", "CANWRITE");
+        addPriviledges.getSelectionModel().select(0);
 
         final Button addButton = new Button("Add");
         addButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -112,10 +127,10 @@ public class ServerUserDialog extends Stage {
                 data.add(new ServerUser(
                         addUsername.getText(),
                         addPassword.getText(),
-                        Integer.parseInt(addPriviledges.getText())));
+                        (String)addPriviledges.getSelectionModel().getSelectedItem()));
                 addUsername.clear();
                 addPassword.clear();
-                addPriviledges.clear();
+                addPriviledges.getSelectionModel().select(0);
             }
         });
 
@@ -193,4 +208,6 @@ public class ServerUserDialog extends Stage {
             return getItem() == null ? "" : getItem().toString();
         }
     }
+    //sampel code starts here
+    
 }

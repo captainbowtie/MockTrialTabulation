@@ -84,7 +84,7 @@ public class MockTrialTabulation extends Application {
     private String serverUsername = null;
     private String serverPassword = null;
     private ObservableList<ServerUser> serverUsers = FXCollections.observableArrayList(
-                new ServerUser("admin", "password", 2));;
+                new ServerUser("admin", "password", "CANWRITE"));;
 
     @Override
     public void start(Stage primaryStage) {

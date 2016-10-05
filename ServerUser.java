@@ -17,25 +17,25 @@
 package com.allenbarr.MockTrialTabulation;
 
 import java.io.Serializable;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 /**
  *
  * @author captainbowtie
  */
 public class ServerUser implements Serializable {
-    private static final long serialVersionUID = 20161002;
+    private static final long serialVersionUID = 20161004;
     public static final int NONE = 0;
     public static final int CANREAD = 1;
     public static final int CANWRITE = 2;
     private SimpleStringProperty username;
     private SimpleStringProperty password;
-    private SimpleIntegerProperty privileges;
-    public ServerUser(String uname, String pwd, int priv){
+    private SimpleStringProperty privileges;
+    public ServerUser(String uname, String pwd, String priv){
         this.username = new SimpleStringProperty(uname);
         this.password = new SimpleStringProperty(pwd);
-        this.privileges = new SimpleIntegerProperty(priv);
+        this.privileges = new SimpleStringProperty(priv);
     }
 
     public String getUsername() {
@@ -54,12 +54,16 @@ public class ServerUser implements Serializable {
         this.password.set(password);
     }
 
-    public int getPrivileges() {
+    public String getPrivileges() {
         return privileges.get();
     }
 
-    public void setPrivileges(int privileges) {
+    public void setPrivileges(String privileges) {
         this.privileges.set(privileges);
+    }
+    
+    public StringProperty privilegesProperty(){
+        return privileges;
     }
     
 }
