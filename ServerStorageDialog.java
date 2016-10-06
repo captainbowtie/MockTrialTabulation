@@ -46,6 +46,7 @@ public class ServerStorageDialog extends Stage {
     private final Button okayButton = new Button();
     public static final int SAVE = 0;
     public static final int OPEN = 1;
+    public boolean response = false;
 
     public ServerStorageDialog(int dialogType) {
         this.titleProperty().setValue("Server URL");
@@ -66,6 +67,7 @@ public class ServerStorageDialog extends Stage {
             url = urlField.getText();
             username = usernameField.getText();
             password = passwordField.getText();
+            response = true;
             this.close();
         });
         grid.add(urlPrompt, 0, 0);
@@ -91,5 +93,9 @@ public class ServerStorageDialog extends Stage {
 
     public String getPassword() {
         return password;
+    }
+    
+    public boolean getResponse(){
+        return response;
     }
 }

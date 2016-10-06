@@ -84,7 +84,7 @@ public class MockTrialTabulation extends Application {
     private String serverUsername = null;
     private String serverPassword = null;
     private ObservableList<ServerUser> serverUsers = FXCollections.observableArrayList(
-                new ServerUser("admin", "password", "CANWRITE"));;
+            new ServerUser("admin", "password", "CANWRITE"));
 
     @Override
     public void start(Stage primaryStage) {
@@ -672,64 +672,67 @@ public class MockTrialTabulation extends Application {
         BufferedReader fromServer = null;
         ObjectOutputStream oos = null;
         ObjectInputStream ois = null;
-        if (serverURL == null) {
-            ServerStorageDialog saveDialog = new ServerStorageDialog(ServerStorageDialog.SAVE);
-            saveDialog.showAndWait();
+        ServerStorageDialog saveDialog = new ServerStorageDialog(ServerStorageDialog.SAVE);
+        saveDialog.showAndWait();
+        if (saveDialog.getResponse()) {
             serverURL = saveDialog.getURL();
             serverUsername = saveDialog.getUsername();
             serverPassword = saveDialog.getPassword();
-        }
-        try {
-            if (serverURL != null) {
-                socket = new Socket(serverURL, 1985);
-                toServer = new PrintWriter(socket.getOutputStream(), true);
-                fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                oos = new ObjectOutputStream(socket.getOutputStream());
-                ois = new ObjectInputStream(socket.getInputStream());
-            } else {
-                Alert noServerURL = new Alert(AlertType.ERROR);
-                noServerURL.setContentText("Please enter a hostname for a server.");
-                noServerURL.showAndWait();
-            }
-        } catch (IOException ex) {
-            Alert serverError = new Alert(AlertType.ERROR);
-            serverError.setContentText("Server communication error: + " + ex.toString());
-            serverError.showAndWait();
-
-        }
-        toServer.println("Connect");
-        String connectResponse = null;
-        try {
-            connectResponse = fromServer.readLine();
-        } catch (IOException ex) {
-            Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        if (connectResponse.equals("getTournament")) {
             try {
-                oos.writeObject(tournament);
-                String writeResponse = null;
-                writeResponse = fromServer.readLine();
-                if (writeResponse.equals("getUsers")) {
-                    ServerUser[] suArray = serverUsers.toArray(new ServerUser[0]);
-                    oos.writeObject(suArray);
+                if (serverURL != null) {
+                    socket = new Socket(serverURL, 1985);
+                    toServer = new PrintWriter(socket.getOutputStream(), true);
+                    fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    oos = new ObjectOutputStream(socket.getOutputStream());
+                    ois = new ObjectInputStream(socket.getInputStream());
+                } else {
+                    Alert noServerURL = new Alert(AlertType.ERROR);
+                    noServerURL.setContentText("Please enter a hostname for a server.");
+                    noServerURL.showAndWait();
                 }
             } catch (IOException ex) {
-                Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
+                Alert serverError = new Alert(AlertType.ERROR);
+                serverError.setContentText("Server communication error: + " + ex.toString());
+                serverError.showAndWait();
+
             }
-        } else if (connectResponse.equals("Connection Established")) {
-            toServer.println(serverUsername + "," + serverPassword);
-            String authResponse = null;
+            toServer.println("Connect");
+            String connectResponse = null;
             try {
-                authResponse = fromServer.readLine();
+                connectResponse = fromServer.readLine();
             } catch (IOException ex) {
                 Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
             }
-            if (authResponse.equals(Integer.toString(ServerUser.CANWRITE))) {
-                toServer.println("setTournament");
+            if (connectResponse.equals("getTournament")) {
                 try {
                     oos.writeObject(tournament);
+                    String writeResponse = null;
+                    writeResponse = fromServer.readLine();
+                    if (writeResponse.equals("getUsers")) {
+                        oos.writeObject(serverUsers.toArray(new ServerUser[0]));
+                    }
                 } catch (IOException ex) {
                     Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else if (connectResponse.equals("Connection Established")) {
+                toServer.println(serverUsername + "," + serverPassword);
+                String authResponse = null;
+                try {
+                    authResponse = fromServer.readLine();
+                } catch (IOException ex) {
+                    Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                if (authResponse.equals(Integer.toString(ServerUser.CANWRITE))) {
+                    toServer.println("setTournament");
+                    try {
+                        oos.writeObject(tournament);
+                        String s = fromServer.readLine();
+                        if (s.equals("Tournament Received")) {
+                            oos.writeObject(serverUsers.toArray(new ServerUser[0]));
+                        }
+                    } catch (IOException ex) {
+                        Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
             }
         }
@@ -765,54 +768,69 @@ public class MockTrialTabulation extends Application {
         BufferedReader fromServer = null;
         ObjectOutputStream oos = null;
         ObjectInputStream ois = null;
-        if (serverURL == null) {
-            ServerStorageDialog saveDialog = new ServerStorageDialog(ServerStorageDialog.OPEN);
-            saveDialog.showAndWait();
-            serverURL = saveDialog.getURL();
-            serverUsername = saveDialog.getUsername();
-            serverPassword = saveDialog.getPassword();
-        }
-        try {
-            if (serverURL != null) {
-                socket = new Socket(serverURL, 1985);
-                toServer = new PrintWriter(socket.getOutputStream(), true);
-                fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                oos = new ObjectOutputStream(socket.getOutputStream());
-                ois = new ObjectInputStream(socket.getInputStream());
-            } else {
-                Alert noServerURL = new Alert(AlertType.ERROR);
-                noServerURL.setContentText("Please enter a hostname for a server.");
-                noServerURL.showAndWait();
-            }
-        } catch (IOException ex) {
-            Alert serverError = new Alert(AlertType.ERROR);
-            serverError.setContentText("Server communication error: " + ex.toString());
-            serverError.showAndWait();
-        }
-        toServer.println("Connect");
-        String connectResponse = null;
-        try {
-            connectResponse = fromServer.readLine();
-        } catch (IOException ex) {
-            Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        if (connectResponse.equals("getTournament")) {
-            //TODO: write error handling for both server and client
-        } else if (connectResponse.equals("Connection Established")) {
-            toServer.println(serverUsername + "," + serverPassword);
-            String authResponse = null;
+        ServerStorageDialog loadDialog = new ServerStorageDialog(ServerStorageDialog.OPEN);
+        loadDialog.showAndWait();
+        if (loadDialog.getResponse()) {
+
+            serverURL = loadDialog.getURL();
+            serverUsername = loadDialog.getUsername();
+            serverPassword = loadDialog.getPassword();
             try {
-                authResponse = fromServer.readLine();
+                if (serverURL != null) {
+                    socket = new Socket(serverURL, 1985);
+                    toServer = new PrintWriter(socket.getOutputStream(), true);
+                    fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    oos = new ObjectOutputStream(socket.getOutputStream());
+                    ois = new ObjectInputStream(socket.getInputStream());
+                } else {
+                    Alert noServerURL = new Alert(AlertType.ERROR);
+                    noServerURL.setContentText("Please enter a hostname for a server.");
+                    noServerURL.showAndWait();
+                }
+            } catch (IOException ex) {
+                Alert serverError = new Alert(AlertType.ERROR);
+                serverError.setContentText("Server communication error: " + ex.toString());
+                serverError.showAndWait();
+            }
+            toServer.println("Connect");
+            String connectResponse = null;
+            try {
+                connectResponse = fromServer.readLine();
             } catch (IOException ex) {
                 Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
             }
-            if (authResponse.equals(Integer.toString(ServerUser.CANREAD)) || authResponse.equals(Integer.toString(ServerUser.CANWRITE))) {
-                toServer.println("getTournament");
+            if (connectResponse.equals("getTournament")) {
+                //TODO: write error handling for both server and client
+            } else if (connectResponse.equals("Connection Established")) {
+                toServer.println(serverUsername + "," + serverPassword);
+                String authResponse = null;
                 try {
-                    tournament = (Tournament) ois.readObject();
-                    displayTabulationWindow();
-                } catch (IOException | ClassNotFoundException ex) {
+                    authResponse = fromServer.readLine();
+                } catch (IOException ex) {
                     Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                if (authResponse.equals(Integer.toString(ServerUser.CANREAD))) {
+                    toServer.println("getTournament");
+                    try {
+                        tournament = (Tournament) ois.readObject();
+                        displayTabulationWindow();
+                    } catch (IOException | ClassNotFoundException ex) {
+                        Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else if (authResponse.equals(Integer.toString(ServerUser.CANWRITE))) {
+                    toServer.println("getTournamentAndUsers");
+                    try {
+                        tournament = (Tournament) ois.readObject();
+                        toServer.println("Tournament Received");
+                        ServerUser[] su = (ServerUser[]) ois.readObject();
+                        serverUsers.clear();
+                        for (int a = 0; a < su.length; a++) {
+                            serverUsers.add(su[a]);
+                        }
+                        displayTabulationWindow();
+                    } catch (IOException | ClassNotFoundException ex) {
+                        Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
             }
         }
@@ -839,13 +857,9 @@ public class MockTrialTabulation extends Application {
         return numRows;
     }
 
-    //CC BY-SA 3.0 https://stackoverflow.com/users/330057/corsika
-    public static boolean isInteger(String s) {
-        return isInteger(s, 10);
-    }
 
     //CC BY-SA 3.0 https://stackoverflow.com/users/330057/corsika
-    public static boolean isInteger(String s, int radix) {
+    public static boolean isInteger(String s) {
         if (s.isEmpty()) {
             return false;
         }
@@ -857,7 +871,7 @@ public class MockTrialTabulation extends Application {
                     continue;
                 }
             }
-            if (Character.digit(s.charAt(i), radix) < 0) {
+            if (Character.digit(s.charAt(i), 10) < 0) {
                 return false;
             }
         }
