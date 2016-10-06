@@ -17,9 +17,22 @@
  */
 package com.allenbarr.MockTrialTabulation;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -27,16 +40,15 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Background;
@@ -59,16 +71,30 @@ public class MockTrialTabulation extends Application {
 
     final private MenuBar menuBar = new MenuBar();
     final private Menu fileMenu = new Menu("File");
+    final private Menu serverMenu = new Menu("Server");
     final private MenuItem save = new MenuItem("Save...");
     final private MenuItem open = new MenuItem("Open...");
+    final private MenuItem editServerUsers = new MenuItem("Edit Server Users...");
+    final private MenuItem saveToServer = new MenuItem("Save to Server...");
+    final private MenuItem openFromServer = new MenuItem("Open from Server...");
     private Tournament tournament = new Tournament();
     final private Stage primaryStage = new Stage();
     private boolean firstPDChange = true;
+    private String serverURL = null;
+    private String serverUsername = null;
+    private String serverPassword = null;
+    private ObservableList<ServerUser> serverUsers = FXCollections.observableArrayList(
+            new ServerUser("admin", "password", "CANWRITE"));
 
     @Override
     public void start(Stage primaryStage) {
         displayTeamNumberPrompt();
+        serverMenu.getItems().add(editServerUsers);
+        serverMenu.getItems().add(openFromServer);
+        serverMenu.getItems().add(saveToServer);
+        fileMenu.getItems().add(serverMenu);
         fileMenu.getItems().add(open);
+        fileMenu.getItems().add(new SeparatorMenuItem());
         fileMenu.getItems().add(save);
         menuBar.getMenus().add(fileMenu);
         menuBar.setUseSystemMenuBar(true);
@@ -76,11 +102,23 @@ public class MockTrialTabulation extends Application {
             loadTournament();
         });
         open.setAccelerator(KeyCombination.keyCombination("Meta+O"));
+        openFromServer.setOnAction(e -> {
+            loadTournamentFromServer();
+        });
         save.setOnAction(e -> {
             saveTournament();
         });
         save.setAccelerator(KeyCombination.keyCombination("Meta+S"));
         save.setDisable(true);
+        saveToServer.setOnAction(e -> {
+            saveTournamentToServer();
+        });
+        saveToServer.setDisable(true);
+        editServerUsers.setOnAction(e -> {
+            ServerUserDialog suDialog = new ServerUserDialog(serverUsers);
+            suDialog.showAndWait();
+            //serverUsers = suDialog.getUsers();
+        });
     }
 
     private void displayTeamNumberPrompt() {
@@ -107,8 +145,12 @@ public class MockTrialTabulation extends Application {
                 notEnoughTeams.setContentText("You need at least eight teams at"
                         + "your tournament to use this program.");
                 notEnoughTeams.showAndWait();
-            }
-            {
+            } else if (Integer.parseInt(numberOfTeams.getText()) % 2 != 0) {
+                Alert oddNumberTeams = new Alert(AlertType.ERROR);
+                oddNumberTeams.setContentText("You need an even number of teams at"
+                        + " a mock trial tournament.");
+                oddNumberTeams.showAndWait();
+            } else {
                 displayTeamDataPrompt(Integer.parseInt(numberOfTeams.getText()));
             }
 
@@ -233,6 +275,7 @@ public class MockTrialTabulation extends Application {
 
     private void displayTabulationWindow() {
         save.setDisable(false);
+        saveToServer.setDisable(false);
         final Button[] teamNumberButtons = new Button[tournament.getTeams().size()];
         final Label[] teamNameLabels = new Label[tournament.getTeams().size()];
         final Label[][] teamSideLabels = new Label[tournament.getTeams().size()][4];
@@ -580,8 +623,8 @@ public class MockTrialTabulation extends Application {
                 teamPresent[teamSelectors[a][0].getSelectionModel().getSelectedIndex()] = true;
                 teamPresent[teamSelectors[a][1].getSelectionModel().getSelectedIndex()] = true;
             }
-            for(int a = 0;a<teamPresent.length;a++){
-                if(teamPresent[a] == false){
+            for (int a = 0; a < teamPresent.length; a++) {
+                if (teamPresent[a] == false) {
                     Alert confirmMissingTeam = new Alert(Alert.AlertType.CONFIRMATION);
                     confirmMissingTeam.setContentText("You are missing team XXXX. NOTE: EVENTUALLY THIS PROGRAM WILL SUPPORT THIS, BUT RIGHT NOW IT DOES NOT. YOU SHOULD HIT CANCEL.");
                     ((Button) confirmMissingTeam.getDialogPane().lookupButton(ButtonType.OK)).setText("They got bored and left. Pair anyway.");
@@ -609,9 +652,6 @@ public class MockTrialTabulation extends Application {
      * Prompts user for file location to save tournament data to, and then
      * passes that location on to a class which writes the tournament to the
      * location
-     *
-     * @param primaryStage included until I figure out how to better pass stages
-     * around
      */
     private void saveTournament() {
         FileChooser saveLocationChooser = new FileChooser();
@@ -619,7 +659,83 @@ public class MockTrialTabulation extends Application {
         saveLocationChooser.setInitialFileName("Untitled.csv");
         saveLocationChooser.getExtensionFilters().add(new ExtensionFilter("Mock Trial Tabulation Files", "*.csv"));
         File saveLocation = saveLocationChooser.showSaveDialog(new Stage());
+    }
 
+    /**
+     * Prompts the user for a domain name and writes the tournament to a running
+     * mock trial tabulation server at that domain
+     */
+    private void saveTournamentToServer() {
+        //TODO: make prompt for url rather than hard coded server
+        Socket socket = null;
+        PrintWriter toServer = null;
+        BufferedReader fromServer = null;
+        ObjectOutputStream oos = null;
+        ObjectInputStream ois = null;
+        ServerStorageDialog saveDialog = new ServerStorageDialog(ServerStorageDialog.SAVE);
+        saveDialog.showAndWait();
+        if (saveDialog.getResponse()) {
+            serverURL = saveDialog.getURL();
+            serverUsername = saveDialog.getUsername();
+            serverPassword = saveDialog.getPassword();
+            try {
+                if (serverURL != null) {
+                    socket = new Socket(serverURL, 1985);
+                    toServer = new PrintWriter(socket.getOutputStream(), true);
+                    fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    oos = new ObjectOutputStream(socket.getOutputStream());
+                    ois = new ObjectInputStream(socket.getInputStream());
+                } else {
+                    Alert noServerURL = new Alert(AlertType.ERROR);
+                    noServerURL.setContentText("Please enter a hostname for a server.");
+                    noServerURL.showAndWait();
+                }
+            } catch (IOException ex) {
+                Alert serverError = new Alert(AlertType.ERROR);
+                serverError.setContentText("Server communication error: + " + ex.toString());
+                serverError.showAndWait();
+
+            }
+            toServer.println("Connect");
+            String connectResponse = null;
+            try {
+                connectResponse = fromServer.readLine();
+            } catch (IOException ex) {
+                Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            if (connectResponse.equals("getTournament")) {
+                try {
+                    oos.writeObject(tournament);
+                    String writeResponse = null;
+                    writeResponse = fromServer.readLine();
+                    if (writeResponse.equals("getUsers")) {
+                        oos.writeObject(serverUsers.toArray(new ServerUser[0]));
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else if (connectResponse.equals("Connection Established")) {
+                toServer.println(serverUsername + "," + serverPassword);
+                String authResponse = null;
+                try {
+                    authResponse = fromServer.readLine();
+                } catch (IOException ex) {
+                    Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                if (authResponse.equals(Integer.toString(ServerUser.CANWRITE))) {
+                    toServer.println("setTournament");
+                    try {
+                        oos.writeObject(tournament);
+                        String s = fromServer.readLine();
+                        if (s.equals("Tournament Received")) {
+                            oos.writeObject(serverUsers.toArray(new ServerUser[0]));
+                        }
+                    } catch (IOException ex) {
+                        Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -646,6 +762,80 @@ public class MockTrialTabulation extends Application {
         }
     }
 
+    private void loadTournamentFromServer() {
+        Socket socket = null;
+        PrintWriter toServer = null;
+        BufferedReader fromServer = null;
+        ObjectOutputStream oos = null;
+        ObjectInputStream ois = null;
+        ServerStorageDialog loadDialog = new ServerStorageDialog(ServerStorageDialog.OPEN);
+        loadDialog.showAndWait();
+        if (loadDialog.getResponse()) {
+
+            serverURL = loadDialog.getURL();
+            serverUsername = loadDialog.getUsername();
+            serverPassword = loadDialog.getPassword();
+            try {
+                if (serverURL != null) {
+                    socket = new Socket(serverURL, 1985);
+                    toServer = new PrintWriter(socket.getOutputStream(), true);
+                    fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    oos = new ObjectOutputStream(socket.getOutputStream());
+                    ois = new ObjectInputStream(socket.getInputStream());
+                } else {
+                    Alert noServerURL = new Alert(AlertType.ERROR);
+                    noServerURL.setContentText("Please enter a hostname for a server.");
+                    noServerURL.showAndWait();
+                }
+            } catch (IOException ex) {
+                Alert serverError = new Alert(AlertType.ERROR);
+                serverError.setContentText("Server communication error: " + ex.toString());
+                serverError.showAndWait();
+            }
+            toServer.println("Connect");
+            String connectResponse = null;
+            try {
+                connectResponse = fromServer.readLine();
+            } catch (IOException ex) {
+                Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            if (connectResponse.equals("getTournament")) {
+                //TODO: write error handling for both server and client
+            } else if (connectResponse.equals("Connection Established")) {
+                toServer.println(serverUsername + "," + serverPassword);
+                String authResponse = null;
+                try {
+                    authResponse = fromServer.readLine();
+                } catch (IOException ex) {
+                    Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                if (authResponse.equals(Integer.toString(ServerUser.CANREAD))) {
+                    toServer.println("getTournament");
+                    try {
+                        tournament = (Tournament) ois.readObject();
+                        displayTabulationWindow();
+                    } catch (IOException | ClassNotFoundException ex) {
+                        Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else if (authResponse.equals(Integer.toString(ServerUser.CANWRITE))) {
+                    toServer.println("getTournamentAndUsers");
+                    try {
+                        tournament = (Tournament) ois.readObject();
+                        toServer.println("Tournament Received");
+                        ServerUser[] su = (ServerUser[]) ois.readObject();
+                        serverUsers.clear();
+                        for (int a = 0; a < su.length; a++) {
+                            serverUsers.add(su[a]);
+                        }
+                        displayTabulationWindow();
+                    } catch (IOException | ClassNotFoundException ex) {
+                        Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        }
+    }
+
     private void generateTabSummaryPrompt() {
         FileChooser saveLocationChooser = new FileChooser();
         saveLocationChooser.setTitle("Generate Tab Summary");
@@ -667,13 +857,9 @@ public class MockTrialTabulation extends Application {
         return numRows;
     }
 
-    //CC BY-SA 3.0 https://stackoverflow.com/users/330057/corsika
-    public static boolean isInteger(String s) {
-        return isInteger(s, 10);
-    }
 
     //CC BY-SA 3.0 https://stackoverflow.com/users/330057/corsika
-    public static boolean isInteger(String s, int radix) {
+    public static boolean isInteger(String s) {
         if (s.isEmpty()) {
             return false;
         }
@@ -685,7 +871,7 @@ public class MockTrialTabulation extends Application {
                     continue;
                 }
             }
-            if (Character.digit(s.charAt(i), radix) < 0) {
+            if (Character.digit(s.charAt(i), 10) < 0) {
                 return false;
             }
         }
