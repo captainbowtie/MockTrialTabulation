@@ -578,7 +578,7 @@ public class Tournament {
     }
 
     public ArrayList<Team> sortTeams(ArrayList<Team> teams) {
-        ArrayList<Team> teamsToSort= (ArrayList<Team>)teams.clone();
+        ArrayList<Team> teamsToSort = (ArrayList<Team>) teams.clone();
         ArrayList<Team> sortedTeams = new ArrayList<>();
         while (!teamsToSort.isEmpty()) {
             ArrayList<Team> sameRecordArray = new ArrayList<>();
@@ -674,26 +674,15 @@ public class Tournament {
         return round3Rank1IsPlaintiff;
     }
 
-    private class RoundPairing {
-
-        private Team plaintiffTeam;
-        private Team defenseTeam;
-
-        public void setPlaintiffTeam(Team plaintiffTeam) {
-            this.plaintiffTeam = plaintiffTeam;
+    public int getTeamIndex(int teamNumber) {
+        int index = 0;
+        for (int a = 0; a < teams.size(); a++) {
+            if(teams.get(a).getTeamNumber() == teamNumber){
+                index = a;
+                a=teams.size();
+            }
         }
-
-        public void setDefenseTeam(Team defenseTeam) {
-            this.defenseTeam = defenseTeam;
-        }
-
-        public Team getPlaintiffTeam() {
-            return plaintiffTeam;
-        }
-
-        public Team getDefenseTeam() {
-            return defenseTeam;
-        }
+        return index;
     }
 
 }
