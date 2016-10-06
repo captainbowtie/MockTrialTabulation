@@ -29,41 +29,38 @@ public class ServerUser implements Serializable {
     public static final int NONE = 0;
     public static final int CANREAD = 1;
     public static final int CANWRITE = 2;
-    private SimpleStringProperty username;
-    private SimpleStringProperty password;
-    private SimpleStringProperty privileges;
+    private String username;
+    private String password;
+    private String privileges;
     public ServerUser(String uname, String pwd, String priv){
-        this.username = new SimpleStringProperty(uname);
-        this.password = new SimpleStringProperty(pwd);
-        this.privileges = new SimpleStringProperty(priv);
+        this.username = uname;
+        this.password = pwd;
+        this.privileges = priv;
     }
 
     public String getUsername() {
-        return username.get();
+        return username;
     }
 
     public void setUsername(String username) {
-        this.username.set(username);
+        this.username=username;
     }
 
     public String getPassword() {
-        return password.get();
+        return password;
     }
 
     public void setPassword(String password) {
-        this.password.set(password);
+        this.password=password;
     }
 
     public String getPrivileges() {
-        return privileges.get();
+        return privileges;
     }
 
     public void setPrivileges(String privileges) {
-        this.privileges.set(privileges);
+        this.privileges=privileges;
     }
     
-    public StringProperty privilegesProperty(){
-        return privileges;
-    }
     
 }

@@ -26,7 +26,8 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Optional;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
@@ -49,7 +50,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -710,7 +710,8 @@ public class MockTrialTabulation extends Application {
                 String writeResponse = null;
                 writeResponse = fromServer.readLine();
                 if (writeResponse.equals("getUsers")) {
-                    oos.writeObject(serverUsers);
+                    ServerUser[] suArray = serverUsers.toArray(new ServerUser[0]);
+                    oos.writeObject(suArray);
                 }
             } catch (IOException ex) {
                 Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
@@ -805,10 +806,11 @@ public class MockTrialTabulation extends Application {
             } catch (IOException ex) {
                 Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
             }
-            if (authResponse.equals(Integer.toString(ServerUser.CANREAD))) {
+            if (authResponse.equals(Integer.toString(ServerUser.CANREAD)) || authResponse.equals(Integer.toString(ServerUser.CANWRITE))) {
                 toServer.println("getTournament");
                 try {
                     tournament = (Tournament) ois.readObject();
+                    displayTabulationWindow();
                 } catch (IOException | ClassNotFoundException ex) {
                     Logger.getLogger(MockTrialTabulation.class.getName()).log(Level.SEVERE, null, ex);
                 }

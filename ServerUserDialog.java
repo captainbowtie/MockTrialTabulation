@@ -86,31 +86,22 @@ public class ServerUserDialog extends Stage {
         }
         );
 //start new
-        TableColumn<ServerUser, StringProperty> column = new TableColumn<>("option");
-    column.setCellValueFactory(i -> {
-        final StringProperty value = i.getValue().privilegesProperty();
-        // binding to constant value
-        return Bindings.createObjectBinding(() -> value);
-    });
-
-    column.setCellFactory(col -> {
-        TableCell<ServerUser, StringProperty> c = new TableCell<>();        
-        final ComboBox<String> comboBox = new ComboBox<>();
-        comboBox.getItems().addAll("NONE","CANREAD","CANWRITE");
-        c.itemProperty().addListener((observable, oldValue, newValue) -> {
-            if (oldValue != null) {
-                comboBox.valueProperty().unbindBidirectional(oldValue);
+        TableColumn privCol = new TableColumn("Priviledges");
+        privCol.setCellValueFactory(
+                new PropertyValueFactory<ServerUser, String>("privileges"));
+        privCol.setCellFactory(cellFactory);
+        privCol.setOnEditCommit(
+                new EventHandler<CellEditEvent<ServerUser, String>>() {
+            @Override
+            public void handle(CellEditEvent<ServerUser, String> t) {
+                ((ServerUser) t.getTableView().getItems().get(
+                        t.getTablePosition().getRow())).setPrivileges(t.getNewValue());
             }
-            if (newValue != null) {
-                comboBox.valueProperty().bindBidirectional(newValue);
-            }
-        });
-        c.graphicProperty().bind(Bindings.when(c.emptyProperty()).then((Node) null).otherwise(comboBox));
-        return c;
-    });//end new
+        }
+        );
 
         table.setItems(data);
-        table.getColumns().addAll(usernameCol, passwordCol, column);
+        table.getColumns().addAll(usernameCol, passwordCol, privCol);
 
         final TextField addUsername = new TextField();
         addUsername.setPromptText("Username");
