@@ -26,7 +26,7 @@ import java.util.List;
  * @author captainbowtie
  */
 public class Team implements Serializable {
-    private static final long serialVersionUID = 20160904;
+    private static final long serialVersionUID = 20161020;
 
     private int teamNumber = 0;
     private String teamName = "N/A";
@@ -739,5 +739,9 @@ public class Team implements Serializable {
         pd = pd + round4Ballot1PD;
         pd = pd + round4Ballot2PD;
         return pd;
+    }
+    
+    public void clearMembers(){
+        members.clear();
     }
 }
