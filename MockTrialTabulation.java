@@ -289,6 +289,25 @@ public class MockTrialTabulation extends Application {
 
         for (int a = 0; a < tournament.getTeams().size(); a++) {
             teamNumberButtons[a] = new Button(Integer.toString(tournament.getTeam(a).getTeamNumber()));
+            teamNumberButtons[a].setOnAction(e -> {
+                Button button = (Button) e.getSource();
+                int teamIndex = tournament.getTeamIndex(Integer.parseInt(button.getText()));
+                TeamDialog td = new TeamDialog(tournament.getTeam(teamIndex));
+                td.showAndWait();
+                //Only save changes if that's what the user wants
+                if (td.isSaveChanges()) {
+                    tournament.getTeam(teamIndex).clearMembers();
+                    //Get list of all members names
+                    ArrayList<String> members = td.getUniqueNames();
+                    for (int b = 0; b < members.size(); b++) {
+                        tournament.getTeam(teamIndex).addMember(members.get(b));
+                        tournament.getTeam(teamIndex).getMember(b).setPlaintiffAttorneyRanks(td.getPlaintiffAttorneyRanks(b));
+                        tournament.getTeam(teamIndex).getMember(b).setPlaintiffWitnessRanks(td.getPlaintiffWitnessRanks(b));
+                        tournament.getTeam(teamIndex).getMember(b).setDefenseAttorneyRanks(td.getDefenseAttorneyRanks(b));
+                        tournament.getTeam(teamIndex).getMember(b).setDefenseWitnessRanks(td.getDefenseWitnessRanks(b));
+                    }
+                }
+            });
             teamNameLabels[a] = new Label(tournament.getTeam(a).getTeamName());
             for (int b = 0; b < 4; b++) {
                 teamSideLabels[a][b] = new Label();
@@ -659,6 +678,7 @@ public class MockTrialTabulation extends Application {
         saveLocationChooser.setInitialFileName("Untitled.csv");
         saveLocationChooser.getExtensionFilters().add(new ExtensionFilter("Mock Trial Tabulation Files", "*.csv"));
         File saveLocation = saveLocationChooser.showSaveDialog(new Stage());
+        SpreadsheetHandler.saveToSpreadsheet(tournament, saveLocation);
     }
 
     /**
@@ -856,7 +876,6 @@ public class MockTrialTabulation extends Application {
         }
         return numRows;
     }
-
 
     //CC BY-SA 3.0 https://stackoverflow.com/users/330057/corsika
     public static boolean isInteger(String s) {

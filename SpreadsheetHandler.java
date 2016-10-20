@@ -35,9 +35,10 @@ import java.util.regex.Pattern;
 public abstract class SpreadsheetHandler {
 
     /**
-     * Writes tournament data to a CSV file, first listing whether lower team number
-     * is higher rank and whether rank 1 or rank 3 is plaintiff in round three, followed by
-     * all the teams with their fields listed in the following order:
+     * Writes tournament data to a CSV file, first listing whether lower team
+     * number is higher rank and whether rank 1 or rank 3 is plaintiff in round
+     * three, followed by all the teams with their fields listed in the
+     * following order:
      * teamNumber,teamName,round1Plaintiff,round3Plaintiff,round1Opponent,round2Opponent,
      * round3Opponent,round4Opponent,round1Ballot1PD,round1Ballot2PD,round2Ballot1PD,
      * round2Ballot2PD,round3Ballot1PD,round3Ballot2PD,round4Ballot1PD,round4Ballot2PD,
@@ -50,7 +51,7 @@ public abstract class SpreadsheetHandler {
     public static void saveToSpreadsheet(Tournament tournament, File outputFile) {
         //TODO: write real error handling
         try (PrintWriter out = new PrintWriter(outputFile)) {
-            out.println(tournament.isLowerTeamNumberIsHigherRank()+","+tournament.isRound3Rank1IsPlaintiff());
+            out.println(tournament.isLowerTeamNumberIsHigherRank() + "," + tournament.isRound3Rank1IsPlaintiff());
             int[] maxes = getTeamMaxes(tournament);
             for (int a = 0; a < tournament.getTeams().size(); a++) {
                 final Team team = tournament.getTeam(a);
@@ -90,6 +91,7 @@ public abstract class SpreadsheetHandler {
                                 + member.getDefenseWitnessRanks()[1] + ","
                                 + member.getDefenseWitnessRanks()[2] + ","
                                 + member.getDefenseWitnessRanks()[3] + ",");
+                        b++;
                     }
                     out.print(",,,,,,,,,,,,,,,,,");
                 }
@@ -107,11 +109,11 @@ public abstract class SpreadsheetHandler {
             String line = in.readLine();
             final Pattern teamNumberREGEX = Pattern.compile("\\d{4}");
             final Pattern memberREGEX = Pattern.compile("[A-z\\d ]*,\\d,\\d,\\d,\\d,\\d,\\d,\\d,\\d,\\d,\\d,\\d,\\d,\\d,\\d,\\d,\\d,");
-            final boolean lowerTeamNumberIsHigherRank = Boolean.parseBoolean(line.substring(0,line.indexOf(',')));
-            line = line.substring(line.indexOf(',') + 1); 
+            final boolean lowerTeamNumberIsHigherRank = Boolean.parseBoolean(line.substring(0, line.indexOf(',')));
+            line = line.substring(line.indexOf(',') + 1);
             final boolean round3Rank1IsPlaintiff = Boolean.parseBoolean(line);
             line = in.readLine();
-            tournament = new Tournament(lowerTeamNumberIsHigherRank,round3Rank1IsPlaintiff);
+            tournament = new Tournament(lowerTeamNumberIsHigherRank, round3Rank1IsPlaintiff);
             while (line != null) {
                 final int teamNumber = Integer.parseInt(line.substring(0, 4));
                 line = line.substring(5);
@@ -146,16 +148,16 @@ public abstract class SpreadsheetHandler {
                 final int round4Ballot1PD = Integer.parseInt(line.substring(0, line.indexOf(',')));
                 line = line.substring(line.indexOf(',') + 1);
                 final int round4Ballot2PD;
-                if(line.contains(",")){
+                if (line.contains(",")) {
                     round4Ballot2PD = Integer.parseInt(line.substring(0, line.indexOf(',')));
-                }else{
+                } else {
                     round4Ballot2PD = Integer.parseInt(line);
                 }
                 line = line.substring(line.indexOf(',') + 1);
                 final Matcher teamNumberMatcher = teamNumberREGEX.matcher(line);
                 ArrayList<Integer> impermissibleMatches = new ArrayList<>();
                 while (teamNumberMatcher.find()) {
-                    impermissibleMatches.add(Integer.parseInt(line.substring(teamNumberMatcher.start(), teamNumberMatcher.end() )));
+                    impermissibleMatches.add(Integer.parseInt(line.substring(teamNumberMatcher.start(), teamNumberMatcher.end())));
                 }
                 line = line.substring(impermissibleMatches.size() * 5);
                 final Matcher memberMatcher = memberREGEX.matcher(line);
@@ -166,7 +168,7 @@ public abstract class SpreadsheetHandler {
                     memberString = memberString.substring(memberString.indexOf(',') + 1);
                     int[] ranks = new int[16];
                     for (int a = 0; a < 16; a++) {
-                        ranks[a] = Integer.parseInt(memberString.substring(a * 2, a * 2));
+                        ranks[a] = Integer.parseInt(memberString.substring(a * 2, a * 2+1));
                     }
                     members.add(new Member(memberName, ranks));
                 }
@@ -175,7 +177,7 @@ public abstract class SpreadsheetHandler {
                         round1Ballot1PD, round1Ballot2PD, round2Ballot1PD, round2Ballot2PD,
                         round3Ballot1PD, round3Ballot2PD, round4Ballot1PD, round4Ballot2PD,
                         impermissibleMatches, members));
-            line=in.readLine();
+                line = in.readLine();
             }
 
         } //TODO: real error handling
