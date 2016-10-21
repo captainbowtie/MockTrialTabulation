@@ -71,6 +71,65 @@ public class TeamDialog extends Stage {
                 defenseWitnessRanks[a][b] = new TextField("0");
                 defenseWitnessRanks[a][b].setPrefColumnCount(1);
             }
+            //Disable components that logically cannot yet be accessed
+            //Disable all components before round 1
+            if (team.getRound1Opponent() == 0) {
+                plaintiffAttorneyNames[a].setDisable(true);
+                plaintiffWitnessNames[a].setDisable(true);
+                defenseAttorneyNames[a].setDisable(true);
+                defenseWitnessNames[a].setDisable(true);
+                for (int b = 0; b < 4; b++) {
+                    plaintiffAttorneyRanks[a][b].setDisable(true);
+                    plaintiffWitnessRanks[a][b].setDisable(true);
+                    defenseAttorneyRanks[a][b].setDisable(true);
+                    defenseWitnessRanks[a][b].setDisable(true);
+                }
+                //Disable round 2 - 4 components
+            } else if (team.getRound2Opponent() == 0) {
+                if (team.isRound1Plaintiff()) {
+                    defenseAttorneyNames[a].setDisable(true);
+                    defenseWitnessNames[a].setDisable(true);
+                    for (int b = 0; b < 4; b++) {
+                        defenseAttorneyRanks[a][b].setDisable(true);
+                        defenseWitnessRanks[a][b].setDisable(true);
+                    }
+                    for (int b = 2; b < 4; b++) {
+                        plaintiffAttorneyRanks[a][b].setDisable(true);
+                        plaintiffWitnessRanks[a][b].setDisable(true);
+                    }
+                } else {
+                    plaintiffAttorneyNames[a].setDisable(true);
+                    plaintiffWitnessNames[a].setDisable(true);
+                    for (int b = 0; b < 4; b++) {
+                        plaintiffAttorneyRanks[a][b].setDisable(true);
+                        plaintiffWitnessRanks[a][b].setDisable(true);
+                    }
+                    for (int b = 2; b < 4; b++) {
+                        defenseAttorneyRanks[a][b].setDisable(true);
+                        defenseWitnessRanks[a][b].setDisable(true);
+                    }
+                }
+                //Disable Round 3 - 4 components
+            } else if (team.getRound3Opponent() == 0) {
+                for(int b = 2; b<4;b++){
+                    plaintiffAttorneyRanks[a][b].setDisable(true);
+                    plaintiffWitnessRanks[a][b].setDisable(true);
+                    defenseAttorneyRanks[a][b].setDisable(true);
+                    defenseWitnessRanks[a][b].setDisable(true);
+                }
+            } else if(team.getRound4Opponent()==0){
+                if(team.isRound3Plaintiff()){
+                    for(int b = 2;b<4;b++){
+                        defenseAttorneyRanks[a][b].setDisable(true);
+                        defenseWitnessRanks[a][b].setDisable(true);
+                    }
+                }else{
+                    for(int b = 2;b<4;b++){
+                        plaintiffAttorneyRanks[a][b].setDisable(true);
+                        plaintiffWitnessRanks[a][b].setDisable(true);
+                    }
+                }
+            }
         }
         //Fill in fields with data from team
         for (int a = 0; a < team.getMembers().size(); a++) {
@@ -170,33 +229,33 @@ public class TeamDialog extends Stage {
         this.setScene(scene);
     }
 
-    
-    public boolean isSaveChanges(){
+    public boolean isSaveChanges() {
         return saveChanges;
     }
-    
-    public ArrayList<String> getUniqueNames(){
+
+    public ArrayList<String> getUniqueNames() {
         final ArrayList<String> memberNames = new ArrayList<>();
-        for(int a = 0;a<6;a++){
-            if(!memberNames.contains(plaintiffAttorneyNames[a].getText()) && !plaintiffAttorneyNames[a].getText().equals("")){
+        for (int a = 0; a < 6; a++) {
+            if (!memberNames.contains(plaintiffAttorneyNames[a].getText()) && !plaintiffAttorneyNames[a].getText().equals("")) {
                 memberNames.add(plaintiffAttorneyNames[a].getText());
             }
-            if(!memberNames.contains(plaintiffWitnessNames[a].getText()) && !plaintiffWitnessNames[a].getText().equals("")){
+            if (!memberNames.contains(plaintiffWitnessNames[a].getText()) && !plaintiffWitnessNames[a].getText().equals("")) {
                 memberNames.add(plaintiffWitnessNames[a].getText());
             }
-            if(!memberNames.contains(defenseAttorneyNames[a].getText()) && !defenseAttorneyNames[a].getText().equals("")){
+            if (!memberNames.contains(defenseAttorneyNames[a].getText()) && !defenseAttorneyNames[a].getText().equals("")) {
                 memberNames.add(defenseAttorneyNames[a].getText());
             }
-            if(!memberNames.contains(defenseWitnessNames[a].getText()) && !defenseWitnessNames[a].getText().equals("")){
+            if (!memberNames.contains(defenseWitnessNames[a].getText()) && !defenseWitnessNames[a].getText().equals("")) {
                 memberNames.add(defenseWitnessNames[a].getText());
             }
         }
         return memberNames;
     }
-    
+
     /**
-     * Checks if specified int array has any number>0 in it
-     * As used, effectively checks whether an array of ranks actually contains any ranks
+     * Checks if specified int array has any number>0 in it As used, effectively
+     * checks whether an array of ranks actually contains any ranks
+     *
      * @param ranks int array of arbitrary size
      * @return true if at least one member is > 0; otherwise returns false
      */
@@ -210,31 +269,34 @@ public class TeamDialog extends Stage {
         return false;
     }
 
-    public int[] getPlaintiffAttorneyRanks(int i){
+    public int[] getPlaintiffAttorneyRanks(int i) {
         int[] ranks = new int[4];
-        for(int a = 0;a<4;a++){
-            ranks[a]=Integer.parseInt(plaintiffAttorneyRanks[i][a].getText());
+        for (int a = 0; a < 4; a++) {
+            ranks[a] = Integer.parseInt(plaintiffAttorneyRanks[i][a].getText());
         }
         return ranks;
     }
-    public int[] getDefenseAttorneyRanks(int i){
+
+    public int[] getDefenseAttorneyRanks(int i) {
         int[] ranks = new int[4];
-        for(int a = 0;a<4;a++){
-            ranks[a]=Integer.parseInt(defenseAttorneyRanks[i][a].getText());
+        for (int a = 0; a < 4; a++) {
+            ranks[a] = Integer.parseInt(defenseAttorneyRanks[i][a].getText());
         }
         return ranks;
     }
-    public int[] getPlaintiffWitnessRanks(int i){
+
+    public int[] getPlaintiffWitnessRanks(int i) {
         int[] ranks = new int[4];
-        for(int a = 0;a<4;a++){
-            ranks[a]=Integer.parseInt(plaintiffWitnessRanks[i][a].getText());
+        for (int a = 0; a < 4; a++) {
+            ranks[a] = Integer.parseInt(plaintiffWitnessRanks[i][a].getText());
         }
         return ranks;
     }
-    public int[] getDefenseWitnessRanks(int i){
+
+    public int[] getDefenseWitnessRanks(int i) {
         int[] ranks = new int[4];
-        for(int a = 0;a<4;a++){
-            ranks[a]=Integer.parseInt(defenseWitnessRanks[i][a].getText());
+        for (int a = 0; a < 4; a++) {
+            ranks[a] = Integer.parseInt(defenseWitnessRanks[i][a].getText());
         }
         return ranks;
     }

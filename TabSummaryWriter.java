@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -498,7 +497,12 @@ public abstract class TabSummaryWriter {
                     tournament.getTeamCS(team.getTeamNumber())+" PD: "+ team.getPD();
             rankRow.createCell(0).setCellValue(rankText);
         }
-
+        //Individual Awards
+        int individualAwardStart = teamPlacementStart+tournament.getTeams().size()+2;
+        Row individualAwardHeaderRow = sheet.createRow(individualAwardStart);
+        individualAwardHeaderRow.createCell(0).setCellValue("Outstanding Attorney Awards");
+        individualAwardHeaderRow.createCell(5).setCellValue("Outstanding Witness Awards");
+        
         FileOutputStream fileOut;
         try {
             fileOut = new FileOutputStream(file);
