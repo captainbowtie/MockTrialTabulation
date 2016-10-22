@@ -47,7 +47,7 @@ public abstract class TabSummaryWriter {
         final Row hostedByRow = sheet.createRow(1);
         final Row hostSchoolRow = sheet.createRow(2);
         final Row tournamentDateRow = sheet.createRow(3);
-        final Row tabulationSummaryRow = sheet.createRow(4); 
+        final Row tabulationSummaryRow = sheet.createRow(4);
         tournamentNameRow.createCell(0).setCellValue("Tournament Name");
         hostedByRow.createCell(0).setCellValue("Hosted by");
         hostSchoolRow.createCell(0).setCellValue("Host School");
@@ -72,7 +72,7 @@ public abstract class TabSummaryWriter {
         tabulationSummaryRow.getCell(0).setCellStyle(boldCentered);
         int verticalOffset = 6;
         //Team data headers
-        final Row headerRow  = sheet.createRow(verticalOffset-1);
+        final Row headerRow = sheet.createRow(verticalOffset - 1);
         //Set header cell values
         headerRow.createCell(0).setCellValue("Team");
         headerRow.createCell(1).setCellValue("Round 1");
@@ -89,11 +89,11 @@ public abstract class TabSummaryWriter {
         headerRow.createCell(12);
         headerRow.createCell(13).setCellValue("Summary");
         //Merge header cells
-        sheet.addMergedRegion(new CellRangeAddress(verticalOffset-1, verticalOffset-1, 1, 3));
-        sheet.addMergedRegion(new CellRangeAddress(verticalOffset-1, verticalOffset-1, 4, 6));
-        sheet.addMergedRegion(new CellRangeAddress(verticalOffset-1, verticalOffset-1, 7, 9));
-        sheet.addMergedRegion(new CellRangeAddress(verticalOffset-1, verticalOffset-1, 10, 12));
-        sheet.addMergedRegion(new CellRangeAddress(verticalOffset-1, verticalOffset-1, 13, 15));
+        sheet.addMergedRegion(new CellRangeAddress(verticalOffset - 1, verticalOffset - 1, 1, 3));
+        sheet.addMergedRegion(new CellRangeAddress(verticalOffset - 1, verticalOffset - 1, 4, 6));
+        sheet.addMergedRegion(new CellRangeAddress(verticalOffset - 1, verticalOffset - 1, 7, 9));
+        sheet.addMergedRegion(new CellRangeAddress(verticalOffset - 1, verticalOffset - 1, 10, 12));
+        sheet.addMergedRegion(new CellRangeAddress(verticalOffset - 1, verticalOffset - 1, 13, 15));
         //Format cells
         CellStyle headerCell = wb.createCellStyle();
         headerCell.setBorderBottom(CellStyle.BORDER_THICK);
@@ -452,7 +452,7 @@ public abstract class TabSummaryWriter {
             row1.createCell(8).setCellStyle(blankCellCenter);
             row1.createCell(11).setCellStyle(blankCellCenter);
             row1.createCell(14).setCellStyle(blankCellCenter);
-            
+
             CellStyle blankCellBottom = wb.createCellStyle();
             if (a % 2.0 == 0) {
                 blankCellBottom.setFillForegroundColor(IndexedColors.CORNFLOWER_BLUE.getIndex());
@@ -486,23 +486,69 @@ public abstract class TabSummaryWriter {
         sheet.setColumnWidth(14, 1);
         sheet.autoSizeColumn(15);
         //Team Placements
-        int teamPlacementStart = tournament.getTeams().size()*3+7;
+        int teamPlacementStart = tournament.getTeams().size() * 3 + 7;
         ArrayList<Team> rankedTeams = tournament.sortTeams(tournament.getTeams());
-        for(int a = 0;a<rankedTeams.size();a++){
-            Row rankRow = sheet.createRow(teamPlacementStart+a);
+        for (int a = 0; a < rankedTeams.size(); a++) {
+            Row rankRow = sheet.createRow(teamPlacementStart + a);
             Team team = rankedTeams.get(a);
             String cs = tournament.getTeamCS(team.getTeamNumber()).toString();
-            String rankText = a+1+") "+ team.getTeamNumber() + " "+ team.getTeamName() + " "+
-                    team.getWins()+"-"+team.getLoses()+"-"+team.getTies() + " CS: "+
-                    tournament.getTeamCS(team.getTeamNumber())+" PD: "+ team.getPD();
+            String rankText = a + 1 + ") " + team.getTeamNumber() + " " + team.getTeamName() + " "
+                    + team.getWins() + "-" + team.getLoses() + "-" + team.getTies() + " CS: "
+                    + tournament.getTeamCS(team.getTeamNumber()) + " PD: " + team.getPD();
             rankRow.createCell(0).setCellValue(rankText);
         }
         //Individual Awards
-        int individualAwardStart = teamPlacementStart+tournament.getTeams().size()+2;
+        int individualAwardStart = teamPlacementStart + tournament.getTeams().size() + 2;
         Row individualAwardHeaderRow = sheet.createRow(individualAwardStart);
         individualAwardHeaderRow.createCell(0).setCellValue("Outstanding Attorney Awards");
         individualAwardHeaderRow.createCell(5).setCellValue("Outstanding Witness Awards");
-        
+        ArrayList<String> attorneyAwards = new ArrayList<>();
+        ArrayList<String> witnessAwards = new ArrayList<>();
+        for (int a = 20; a > 0; a--) {
+            for (int b = 0; b < tournament.getTeams().size(); b++) {
+                for (int c = 0; c < tournament.getTeam(b).getMembers().size(); c++) {
+                    int pAtyRankSum = 0;
+                    int dAtyRankSum = 0;
+                    int pWitRankSum = 0;
+                    int dWitRankSum = 0;
+                    for (int d = 0; d < 4; d++) {
+                        pAtyRankSum += tournament.getTeam(b).getMember(c).getPlaintiffAttorneyRanks()[d];
+                        dAtyRankSum += tournament.getTeam(b).getMember(c).getDefenseAttorneyRanks()[d];
+                        pWitRankSum += tournament.getTeam(b).getMember(c).getPlaintiffWitnessRanks()[d];
+                        dWitRankSum += tournament.getTeam(b).getMember(c).getDefenseWitnessRanks()[d];
+                    }
+
+                    if (pAtyRankSum == a) {
+                        attorneyAwards.add(a + "-π " + tournament.getTeam(b).getMember(c).getName() + " " + tournament.getTeam(b).getTeamNumber());
+                    }
+                    if (dAtyRankSum == a) {
+                        attorneyAwards.add(a + "-∆ " + tournament.getTeam(b).getMember(c).getName() + " " + tournament.getTeam(b).getTeamNumber());
+                    }
+                    if (pWitRankSum == a) {
+                        witnessAwards.add(a + "-π " + tournament.getTeam(b).getMember(c).getName() + " " + tournament.getTeam(b).getTeamNumber());
+                    }
+                    if (dWitRankSum == a) {
+                        witnessAwards.add(a + "-∆ " + tournament.getTeam(b).getMember(c).getName() + " " + tournament.getTeam(b).getTeamNumber());
+                    }
+                }
+            }
+        }
+        int smallerAwardArraySize = Math.min(attorneyAwards.size(), witnessAwards.size());
+        for (int a = 0; a < smallerAwardArraySize; a++) {
+            Row awardRow = sheet.createRow(individualAwardStart + 1 + a);
+            awardRow.createCell(0).setCellValue(attorneyAwards.get(a));
+            awardRow.createCell(5).setCellValue(witnessAwards.get(a));
+            System.out.print(awardRow.getRowNum());
+        }
+        int remainderAwardStart = individualAwardStart + smallerAwardArraySize + 1;
+        for (int a = smallerAwardArraySize; a < Math.max(attorneyAwards.size(), witnessAwards.size()); a++) {
+            Row awardRow = sheet.createRow(remainderAwardStart+a-smallerAwardArraySize);
+            if (attorneyAwards.size() > witnessAwards.size()) {
+                awardRow.createCell(0).setCellValue(attorneyAwards.get(a));
+            } else {
+                awardRow.createCell(5).setCellValue(witnessAwards.get(a));
+            }
+        }
         FileOutputStream fileOut;
         try {
             fileOut = new FileOutputStream(file);
