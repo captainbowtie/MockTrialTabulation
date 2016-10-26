@@ -143,7 +143,7 @@ public class MockTrialTabulation extends Application {
             } else if (Integer.parseInt(numberOfTeams.getText()) < 8) {
                 Alert notEnoughTeams = new Alert(AlertType.ERROR);
                 notEnoughTeams.setContentText("You need at least eight teams at"
-                        + "your tournament to use this program.");
+                        + " your tournament to use this program.");
                 notEnoughTeams.showAndWait();
             } else if (Integer.parseInt(numberOfTeams.getText()) % 2 != 0) {
                 Alert oddNumberTeams = new Alert(AlertType.ERROR);
@@ -301,10 +301,20 @@ public class MockTrialTabulation extends Application {
                     ArrayList<String> members = td.getUniqueNames();
                     for (int b = 0; b < members.size(); b++) {
                         tournament.getTeam(teamIndex).addMember(members.get(b));
-                        tournament.getTeam(teamIndex).getMember(b).setPlaintiffAttorneyRanks(td.getPlaintiffAttorneyRanks(b));
-                        tournament.getTeam(teamIndex).getMember(b).setPlaintiffWitnessRanks(td.getPlaintiffWitnessRanks(b));
-                        tournament.getTeam(teamIndex).getMember(b).setDefenseAttorneyRanks(td.getDefenseAttorneyRanks(b));
-                        tournament.getTeam(teamIndex).getMember(b).setDefenseWitnessRanks(td.getDefenseWitnessRanks(b));
+                        for(int c = 0;c<6;c++){
+                            if(td.getPlaintiffAttorneyName(c).equals(members.get(b))){
+                                tournament.getTeam(teamIndex).getMember(b).setPlaintiffAttorneyRanks(td.getPlaintiffAttorneyRanks(c));
+                            }
+                            if(td.getPlaintiffWitnessName(c).equals(members.get(b))){
+                                tournament.getTeam(teamIndex).getMember(b).setPlaintiffWitnessRanks(td.getPlaintiffWitnessRanks(c));
+                            }
+                            if(td.getDefenseAttorneyName(c).equals(members.get(b))){
+                                tournament.getTeam(teamIndex).getMember(b).setDefenseAttorneyRanks(td.getDefenseAttorneyRanks(c));
+                            }
+                            if(td.getDefenseWitnessName(c).equals(members.get(b))){
+                                tournament.getTeam(teamIndex).getMember(b).setDefenseWitnessRanks(td.getDefenseWitnessRanks(c));
+                            }
+                        }
                     }
                 }
             });
@@ -860,7 +870,10 @@ public class MockTrialTabulation extends Application {
         FileChooser saveLocationChooser = new FileChooser();
         saveLocationChooser.setTitle("Generate Tab Summary");
         File saveLocation = saveLocationChooser.showSaveDialog(new Stage());
-        TabSummaryWriter.createTabSummary(tournament, saveLocation);
+        if(saveLocation != null && saveLocation.exists()){
+            TabSummaryWriter.createTabSummary(tournament, saveLocation);
+        }
+        
     }
 
     private int getRowCount(GridPane pane) {
@@ -878,7 +891,7 @@ public class MockTrialTabulation extends Application {
     }
 
     //CC BY-SA 3.0 https://stackoverflow.com/users/330057/corsika
-    public static boolean isInteger(String s) {
+    private static boolean isInteger(String s) {
         if (s.isEmpty()) {
             return false;
         }

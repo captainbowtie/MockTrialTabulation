@@ -15,15 +15,9 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /* 
-    Created on : Jun 18, 2016, 9:52:47 AM
+    Created on : Oct 25, 2016, 10:18:23 PM
     Author     : captainbowtie
 */
-
-#deleteImpermissibleButton {
-    -fx-text-fill: #ff0033;
-    -fx-font-weight: bold;
-    -fx-alignment: center;
-}
 
 GridPane {
     -fx-alignment: center;
