@@ -28,6 +28,7 @@ import java.util.Random;
  * @author captainbowtie
  */
 public class Tournament implements Serializable {
+
     private static final long serialVersionUID = 20160904;
 
     private final boolean lowerTeamNumberIsHigherRank;
@@ -167,13 +168,17 @@ public class Tournament implements Serializable {
             if (round3Rank1IsPlaintiff) {
                 pairingsReturn[a][0] = pairings.get(a * 2).getTeamNumber();
                 pairingsReturn[a][1] = pairings.get(a * 2 + 1).getTeamNumber();
-                pairingsReturn[a + 1][0] = pairings.get(a * 2 + 3).getTeamNumber();
-                pairingsReturn[a + 1][1] = pairings.get(a * 2 + 2).getTeamNumber();
+                if (a + 1 < teams.size() / 2) {
+                    pairingsReturn[a + 1][0] = pairings.get(a * 2 + 3).getTeamNumber();
+                    pairingsReturn[a + 1][1] = pairings.get(a * 2 + 2).getTeamNumber();
+                }
             } else {
                 pairingsReturn[a][0] = pairings.get(a * 2 + 1).getTeamNumber();
                 pairingsReturn[a][1] = pairings.get(a * 2).getTeamNumber();
-                pairingsReturn[a + 1][0] = pairings.get(a * 2 + 2).getTeamNumber();
-                pairingsReturn[a + 1][1] = pairings.get(a * 2 + 3).getTeamNumber();
+                if (a + 1 < teams.size() / 2) {
+                    pairingsReturn[a + 1][0] = pairings.get(a * 2 + 2).getTeamNumber();
+                    pairingsReturn[a + 1][1] = pairings.get(a * 2 + 3).getTeamNumber();
+                }
             }
 
         }
@@ -265,25 +270,20 @@ public class Tournament implements Serializable {
                         proposedPlaintiffSwapTeams.remove(1);
                     } else if (record[0].subtract(record[1]).abs().compareTo(record[0].subtract(record[2]).abs()) < 0) {
                         proposedPlaintiffSwapTeams.remove(0);
-                    } else {
-                        if (getTeamCS(plaintiffs.get(a).getTeamNumber()).subtract(getTeamCS(proposedPlaintiffSwapTeams.get(0).getTeamNumber())).abs().compareTo(getTeamCS(plaintiffs.get(a).getTeamNumber()).subtract(getTeamCS(proposedPlaintiffSwapTeams.get(1).getTeamNumber())).abs()) < 0) {
-                            proposedPlaintiffSwapTeams.remove(1);
-                        } else if (getTeamCS(plaintiffs.get(a).getTeamNumber()).subtract(getTeamCS(proposedPlaintiffSwapTeams.get(0).getTeamNumber())).abs().compareTo(getTeamCS(plaintiffs.get(a).getTeamNumber()).subtract(getTeamCS(proposedPlaintiffSwapTeams.get(1).getTeamNumber())).abs()) > 0) {
+                    } else if (getTeamCS(plaintiffs.get(a).getTeamNumber()).subtract(getTeamCS(proposedPlaintiffSwapTeams.get(0).getTeamNumber())).abs().compareTo(getTeamCS(plaintiffs.get(a).getTeamNumber()).subtract(getTeamCS(proposedPlaintiffSwapTeams.get(1).getTeamNumber())).abs()) < 0) {
+                        proposedPlaintiffSwapTeams.remove(1);
+                    } else if (getTeamCS(plaintiffs.get(a).getTeamNumber()).subtract(getTeamCS(proposedPlaintiffSwapTeams.get(0).getTeamNumber())).abs().compareTo(getTeamCS(plaintiffs.get(a).getTeamNumber()).subtract(getTeamCS(proposedPlaintiffSwapTeams.get(1).getTeamNumber())).abs()) > 0) {
+                        proposedPlaintiffSwapTeams.remove(0);
+                    } else if (Math.abs(proposedPlaintiffSwapTeams.get(0).getPD() - plaintiffs.get(a).getPD()) < Math.abs(proposedPlaintiffSwapTeams.get(1).getPD() - plaintiffs.get(a).getPD())) {
+                        proposedPlaintiffSwapTeams.remove(1);
+                    } else if (Math.abs(proposedPlaintiffSwapTeams.get(0).getPD() - plaintiffs.get(a).getPD()) > Math.abs(proposedPlaintiffSwapTeams.get(1).getPD() - plaintiffs.get(a).getPD())) {
+                        proposedPlaintiffSwapTeams.remove(0);
+                    } else //TODO: account for random of team number high or low
+                    {
+                        if (proposedPlaintiffSwapTeams.get(0).getTeamNumber() > proposedPlaintiffSwapTeams.get(1).getTeamNumber()) {
                             proposedPlaintiffSwapTeams.remove(0);
                         } else {
-                            if (Math.abs(proposedPlaintiffSwapTeams.get(0).getPD() - plaintiffs.get(a).getPD()) < Math.abs(proposedPlaintiffSwapTeams.get(1).getPD() - plaintiffs.get(a).getPD())) {
-                                proposedPlaintiffSwapTeams.remove(1);
-                            } else if (Math.abs(proposedPlaintiffSwapTeams.get(0).getPD() - plaintiffs.get(a).getPD()) > Math.abs(proposedPlaintiffSwapTeams.get(1).getPD() - plaintiffs.get(a).getPD())) {
-                                proposedPlaintiffSwapTeams.remove(0);
-                            } else {
-                                //TODO: account for random of team number high or low
-                                if (proposedPlaintiffSwapTeams.get(0).getTeamNumber() > proposedPlaintiffSwapTeams.get(1).getTeamNumber()) {
-                                    proposedPlaintiffSwapTeams.remove(0);
-                                } else {
-                                    proposedPlaintiffSwapTeams.remove(1);
-                                }
-
-                            }
+                            proposedPlaintiffSwapTeams.remove(1);
                         }
                     }
                 }
@@ -304,25 +304,20 @@ public class Tournament implements Serializable {
                         proposedDefenseSwapTeams.remove(1);
                     } else if (record[0].subtract(record[1]).abs().compareTo(record[0].subtract(record[2]).abs()) < 0) {
                         proposedDefenseSwapTeams.remove(0);
-                    } else {
-                        if (getTeamCS(defendants.get(a).getTeamNumber()).subtract(getTeamCS(proposedDefenseSwapTeams.get(0).getTeamNumber())).abs().compareTo(getTeamCS(defendants.get(a).getTeamNumber()).subtract(getTeamCS(proposedDefenseSwapTeams.get(1).getTeamNumber())).abs()) < 0) {
-                            proposedDefenseSwapTeams.remove(1);
-                        } else if (getTeamCS(defendants.get(a).getTeamNumber()).subtract(getTeamCS(proposedDefenseSwapTeams.get(0).getTeamNumber())).abs().compareTo(getTeamCS(defendants.get(a).getTeamNumber()).subtract(getTeamCS(proposedDefenseSwapTeams.get(1).getTeamNumber())).abs()) > 0) {
+                    } else if (getTeamCS(defendants.get(a).getTeamNumber()).subtract(getTeamCS(proposedDefenseSwapTeams.get(0).getTeamNumber())).abs().compareTo(getTeamCS(defendants.get(a).getTeamNumber()).subtract(getTeamCS(proposedDefenseSwapTeams.get(1).getTeamNumber())).abs()) < 0) {
+                        proposedDefenseSwapTeams.remove(1);
+                    } else if (getTeamCS(defendants.get(a).getTeamNumber()).subtract(getTeamCS(proposedDefenseSwapTeams.get(0).getTeamNumber())).abs().compareTo(getTeamCS(defendants.get(a).getTeamNumber()).subtract(getTeamCS(proposedDefenseSwapTeams.get(1).getTeamNumber())).abs()) > 0) {
+                        proposedDefenseSwapTeams.remove(0);
+                    } else if (Math.abs(proposedDefenseSwapTeams.get(0).getPD() - defendants.get(a).getPD()) < Math.abs(proposedDefenseSwapTeams.get(1).getPD() - defendants.get(a).getPD())) {
+                        proposedDefenseSwapTeams.remove(1);
+                    } else if (Math.abs(proposedDefenseSwapTeams.get(0).getPD() - defendants.get(a).getPD()) > Math.abs(proposedDefenseSwapTeams.get(1).getPD() - defendants.get(a).getPD())) {
+                        proposedDefenseSwapTeams.remove(0);
+                    } else //TODO: account for random of team number high or low
+                    {
+                        if (proposedDefenseSwapTeams.get(0).getTeamNumber() > proposedDefenseSwapTeams.get(1).getTeamNumber()) {
                             proposedDefenseSwapTeams.remove(0);
                         } else {
-                            if (Math.abs(proposedDefenseSwapTeams.get(0).getPD() - defendants.get(a).getPD()) < Math.abs(proposedDefenseSwapTeams.get(1).getPD() - defendants.get(a).getPD())) {
-                                proposedDefenseSwapTeams.remove(1);
-                            } else if (Math.abs(proposedDefenseSwapTeams.get(0).getPD() - defendants.get(a).getPD()) > Math.abs(proposedDefenseSwapTeams.get(1).getPD() - defendants.get(a).getPD())) {
-                                proposedDefenseSwapTeams.remove(0);
-                            } else {
-                                //TODO: account for random of team number high or low
-                                if (proposedDefenseSwapTeams.get(0).getTeamNumber() > proposedDefenseSwapTeams.get(1).getTeamNumber()) {
-                                    proposedDefenseSwapTeams.remove(0);
-                                } else {
-                                    proposedDefenseSwapTeams.remove(1);
-                                }
-
-                            }
+                            proposedDefenseSwapTeams.remove(1);
                         }
                     }
                 }
@@ -339,70 +334,62 @@ public class Tournament implements Serializable {
                     defendants.set(defendants.indexOf(dSwap), defendants.get(a));
                     defendants.set(a, dSwap);
                     swapList.add(swap);
+                } else if (Math.abs((pSwap.getWins() + .5 * pSwap.getTies()) - (plaintiffs.get(a).getWins() + plaintiffs.get(a).getTies() * .5))
+                        < Math.abs((dSwap.getWins() + .5 * dSwap.getTies() - (defendants.get(a).getWins() + defendants.get(a).getTies())))) {
+                    //Swap on P
+                    Integer[] swap = {Math.min(plaintiffs.get(a).getTeamNumber(), pSwap.getTeamNumber()), Math.max(plaintiffs.get(a).getTeamNumber(), pSwap.getTeamNumber())};
+                    plaintiffs.set(plaintiffs.indexOf(pSwap), plaintiffs.get(a));
+                    plaintiffs.set(a, pSwap);
+                    swapList.add(swap);
+                } else if (Math.abs((pSwap.getWins() + .5 * pSwap.getTies()) - (plaintiffs.get(a).getWins() + plaintiffs.get(a).getTies() * .5))
+                        > Math.abs((dSwap.getWins() + .5 * dSwap.getTies() - (defendants.get(a).getWins() + defendants.get(a).getTies())))) {
+                    //Swap on D
+                    Integer[] swap = {Math.min(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber()), Math.max(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber())};
+                    defendants.set(defendants.indexOf(dSwap), defendants.get(a));
+                    defendants.set(a, dSwap);
+                    swapList.add(swap);
+                } else if (getTeamCS(plaintiffs.get(a).getTeamNumber()).subtract(getTeamCS(pSwap.getTeamNumber())).abs().compareTo(getTeamCS(defendants.get(a).getTeamNumber()).subtract(getTeamCS(dSwap.getTeamNumber())).abs()) < 0) {
+                    //Swap on P
+                    Integer[] swap = {Math.min(plaintiffs.get(a).getTeamNumber(), pSwap.getTeamNumber()), Math.max(plaintiffs.get(a).getTeamNumber(), pSwap.getTeamNumber())};
+                    plaintiffs.set(plaintiffs.indexOf(pSwap), plaintiffs.get(a));
+                    plaintiffs.set(a, pSwap);
+                    swapList.add(swap);
+                } else if (getTeamCS(plaintiffs.get(a).getTeamNumber()).subtract(getTeamCS(pSwap.getTeamNumber())).abs().compareTo(getTeamCS(defendants.get(a).getTeamNumber()).subtract(getTeamCS(dSwap.getTeamNumber())).abs()) > 0) {
+                    //Swap on D
+                    Integer[] swap = {Math.min(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber()), Math.max(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber())};
+                    defendants.set(defendants.indexOf(dSwap), defendants.get(a));
+                    defendants.set(a, dSwap);
+                    swapList.add(swap);
+                } else if (Math.abs(plaintiffs.get(a).getPD() - pSwap.getPD()) < Math.abs(defendants.get(a).getPD() - dSwap.getPD())) {
+                    //Swap on P
+                    Integer[] swap = {Math.min(plaintiffs.get(a).getTeamNumber(), pSwap.getTeamNumber()), Math.max(plaintiffs.get(a).getTeamNumber(), pSwap.getTeamNumber())};
+                    plaintiffs.set(plaintiffs.indexOf(pSwap), plaintiffs.get(a));
+                    plaintiffs.set(a, pSwap);
+                    swapList.add(swap);
+                } else if (Math.abs(plaintiffs.get(a).getPD() - pSwap.getPD()) > Math.abs(defendants.get(a).getPD() - dSwap.getPD())) {
+                    //Swap on D
+                    Integer[] swap = {Math.min(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber()), Math.max(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber())};
+                    defendants.set(defendants.indexOf(dSwap), defendants.get(a));
+                    defendants.set(a, dSwap);
+                    swapList.add(swap);
+                } else if (plaintiffs.indexOf(pSwap) > defendants.indexOf(dSwap)) {
+                    //Swap on D
+                    Integer[] swap = {Math.min(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber()), Math.max(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber())};
+                    defendants.set(defendants.indexOf(dSwap), defendants.get(a));
+                    defendants.set(a, dSwap);
+                    swapList.add(swap);
+                } else if (plaintiffs.indexOf(proposedPlaintiffSwapTeams.get(0)) < defendants.indexOf(proposedDefenseSwapTeams.get(0))) {
+                    //Swap on P
+                    Integer[] swap = {Math.min(plaintiffs.get(a).getTeamNumber(), pSwap.getTeamNumber()), Math.max(plaintiffs.get(a).getTeamNumber(), pSwap.getTeamNumber())};
+                    plaintiffs.set(plaintiffs.indexOf(pSwap), plaintiffs.get(a));
+                    plaintiffs.set(a, pSwap);
+                    swapList.add(swap);
                 } else {
-                    if (Math.abs((pSwap.getWins() + .5 * pSwap.getTies()) - (plaintiffs.get(a).getWins() + plaintiffs.get(a).getTies() * .5))
-                            < Math.abs((dSwap.getWins() + .5 * dSwap.getTies() - (defendants.get(a).getWins() + defendants.get(a).getTies())))) {
-                        //Swap on P
-                        Integer[] swap = {Math.min(plaintiffs.get(a).getTeamNumber(), pSwap.getTeamNumber()), Math.max(plaintiffs.get(a).getTeamNumber(), pSwap.getTeamNumber())};
-                        plaintiffs.set(plaintiffs.indexOf(pSwap), plaintiffs.get(a));
-                        plaintiffs.set(a, pSwap);
-                        swapList.add(swap);
-                    } else if (Math.abs((pSwap.getWins() + .5 * pSwap.getTies()) - (plaintiffs.get(a).getWins() + plaintiffs.get(a).getTies() * .5))
-                            > Math.abs((dSwap.getWins() + .5 * dSwap.getTies() - (defendants.get(a).getWins() + defendants.get(a).getTies())))) {
-                        //Swap on D
-                        Integer[] swap = {Math.min(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber()), Math.max(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber())};
-                        defendants.set(defendants.indexOf(dSwap), defendants.get(a));
-                        defendants.set(a, dSwap);
-                        swapList.add(swap);
-                    } else {
-                        if (getTeamCS(plaintiffs.get(a).getTeamNumber()).subtract(getTeamCS(pSwap.getTeamNumber())).abs().compareTo(getTeamCS(defendants.get(a).getTeamNumber()).subtract(getTeamCS(dSwap.getTeamNumber())).abs()) < 0) {
-                            //Swap on P
-                            Integer[] swap = {Math.min(plaintiffs.get(a).getTeamNumber(), pSwap.getTeamNumber()), Math.max(plaintiffs.get(a).getTeamNumber(), pSwap.getTeamNumber())};
-                            plaintiffs.set(plaintiffs.indexOf(pSwap), plaintiffs.get(a));
-                            plaintiffs.set(a, pSwap);
-                            swapList.add(swap);
-                        } else if (getTeamCS(plaintiffs.get(a).getTeamNumber()).subtract(getTeamCS(pSwap.getTeamNumber())).abs().compareTo(getTeamCS(defendants.get(a).getTeamNumber()).subtract(getTeamCS(dSwap.getTeamNumber())).abs()) > 0) {
-                            //Swap on D
-                            Integer[] swap = {Math.min(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber()), Math.max(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber())};
-                            defendants.set(defendants.indexOf(dSwap), defendants.get(a));
-                            defendants.set(a, dSwap);
-                            swapList.add(swap);
-                        } else {
-                            if (Math.abs(plaintiffs.get(a).getPD() - pSwap.getPD()) < Math.abs(defendants.get(a).getPD() - dSwap.getPD())) {
-                                //Swap on P
-                                Integer[] swap = {Math.min(plaintiffs.get(a).getTeamNumber(), pSwap.getTeamNumber()), Math.max(plaintiffs.get(a).getTeamNumber(), pSwap.getTeamNumber())};
-                                plaintiffs.set(plaintiffs.indexOf(pSwap), plaintiffs.get(a));
-                                plaintiffs.set(a, pSwap);
-                                swapList.add(swap);
-                            } else if (Math.abs(plaintiffs.get(a).getPD() - pSwap.getPD()) > Math.abs(defendants.get(a).getPD() - dSwap.getPD())) {
-                                //Swap on D
-                                Integer[] swap = {Math.min(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber()), Math.max(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber())};
-                                defendants.set(defendants.indexOf(dSwap), defendants.get(a));
-                                defendants.set(a, dSwap);
-                                swapList.add(swap);
-                            } else {
-                                if (plaintiffs.indexOf(pSwap) > defendants.indexOf(dSwap)) {
-                                    //Swap on D
-                                    Integer[] swap = {Math.min(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber()), Math.max(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber())};
-                                    defendants.set(defendants.indexOf(dSwap), defendants.get(a));
-                                    defendants.set(a, dSwap);
-                                    swapList.add(swap);
-                                } else if (plaintiffs.indexOf(proposedPlaintiffSwapTeams.get(0)) < defendants.indexOf(proposedDefenseSwapTeams.get(0))) {
-                                    //Swap on P
-                                    Integer[] swap = {Math.min(plaintiffs.get(a).getTeamNumber(), pSwap.getTeamNumber()), Math.max(plaintiffs.get(a).getTeamNumber(), pSwap.getTeamNumber())};
-                                    plaintiffs.set(plaintiffs.indexOf(pSwap), plaintiffs.get(a));
-                                    plaintiffs.set(a, pSwap);
-                                    swapList.add(swap);
-                                } else {
-                                    //Swap on D (See Tab Manual at 35)
-                                    Integer[] swap = {Math.min(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber()), Math.max(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber())};
-                                    defendants.set(defendants.indexOf(dSwap), defendants.get(a));
-                                    defendants.set(a, dSwap);
-                                    swapList.add(swap);
-                                }
-                            }
-                        }
-                    }
+                    //Swap on D (See Tab Manual at 35)
+                    Integer[] swap = {Math.min(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber()), Math.max(defendants.get(a).getTeamNumber(), dSwap.getTeamNumber())};
+                    defendants.set(defendants.indexOf(dSwap), defendants.get(a));
+                    defendants.set(a, dSwap);
+                    swapList.add(swap);
                 }
                 a = -1;
             }
@@ -459,8 +446,8 @@ public class Tournament implements Serializable {
                     Integer[] defenseSwap = {Math.min(pairings.get(a * 2 + 1).getTeamNumber(), pairings.get(closestToDefense).getTeamNumber()), Math.max(pairings.get(a * 2 + 1).getTeamNumber(), pairings.get(closestToDefense).getTeamNumber())};
                     swapList.add(defenseSwap);
                     a = -1;
-                } else {
-                    //evaluate by CS
+                } else //evaluate by CS
+                {
                     if (getTeamCS(pairings.get(a * 2).getTeamNumber()).subtract(getTeamCS(pairings.get(closestToPlaintiff).getTeamNumber())).abs().compareTo(
                             getTeamCS(pairings.get(a * 2 + 1).getTeamNumber()).subtract(getTeamCS(pairings.get(closestToDefense).getTeamNumber())).abs()) < 0) {
                         Team plaintiff = pairings.get(a * 2);
@@ -477,8 +464,8 @@ public class Tournament implements Serializable {
                         Integer[] defenseSwap = {Math.min(pairings.get(a * 2 + 1).getTeamNumber(), pairings.get(closestToDefense).getTeamNumber()), Math.max(pairings.get(a * 2 + 1).getTeamNumber(), pairings.get(closestToDefense).getTeamNumber())};
                         swapList.add(defenseSwap);
                         a = -1;
-                    } else {
-                        //Evaluate by PD
+                    } else //Evaluate by PD
+                    {
                         if (Math.abs(pairings.get(a * 2).getPD() - pairings.get(closestToPlaintiff).getPD())
                                 < Math.abs(pairings.get(a * 2 + 1).getPD() - pairings.get(closestToDefense).getPD())) {
                             Team plaintiff = pairings.get(a * 2);
@@ -495,8 +482,8 @@ public class Tournament implements Serializable {
                             Integer[] defenseSwap = {Math.min(pairings.get(a * 2 + 1).getTeamNumber(), pairings.get(closestToDefense).getTeamNumber()), Math.max(pairings.get(a * 2 + 1).getTeamNumber(), pairings.get(closestToDefense).getTeamNumber())};
                             swapList.add(defenseSwap);
                             a = -1;
-                        } else {
-                            //evaluate by sum of ranks
+                        } else //evaluate by sum of ranks
+                        {
                             if (a * 2 + closestToPlaintiff > a * 2 + 1 + closestToDefense) {
                                 Team plaintiff = pairings.get(a * 2);
                                 pairings.set(a * 2, pairings.get(closestToPlaintiff));
@@ -579,6 +566,16 @@ public class Tournament implements Serializable {
         return cs;
     }
 
+    public BigDecimal getTeamOCS(int teamNumber){
+        BigDecimal ocs = new BigDecimal("0.0");
+        Team team = teams.get(getTeamIndex(teamNumber));
+        ocs = ocs.add(getTeamCS(team.getRound1Opponent()));
+        ocs = ocs.add(getTeamCS(team.getRound2Opponent()));
+        ocs = ocs.add(getTeamCS(team.getRound3Opponent()));
+        ocs = ocs.add(getTeamCS(team.getRound4Opponent()));
+        return ocs;
+    }
+    
     public ArrayList<Team> sortTeams(ArrayList<Team> teams) {
         ArrayList<Team> teamsToSort = (ArrayList<Team>) teams.clone();
         ArrayList<Team> sortedTeams = new ArrayList<>();
@@ -667,6 +664,100 @@ public class Tournament implements Serializable {
         }
         return sortedTeams;
     }
+    
+    public ArrayList<Team> placeTeams(ArrayList<Team> teams){
+        ArrayList<Team> teamsToSort = (ArrayList<Team>) teams.clone();
+        ArrayList<Team> sortedTeams = new ArrayList<>();
+        while (!teamsToSort.isEmpty()) {
+            ArrayList<Team> sameRecordArray = new ArrayList<>();
+            ArrayList<Team> sameCSArray = new ArrayList<>();
+            ArrayList<Team> sameOCSArray = new ArrayList<>();
+            ArrayList<Team> samePDArray = new ArrayList<>();
+            if (teamsToSort.size() == 1 && teamsToSort.get(0).isByeTeam()) {
+                sortedTeams.add(teamsToSort.get(0));
+                teamsToSort.remove(0);
+            }
+            BigDecimal maxRecord = new BigDecimal("0.0");
+            for (int a = 0; a < teamsToSort.size(); a++) {
+                if (maxRecord.compareTo(teamsToSort.get(a).getStatisticalWins()) < 0 && !teamsToSort.get(a).isByeTeam()) {
+                    maxRecord = teamsToSort.get(a).getStatisticalWins();
+                }
+            }
+            for (int a = 0; a < teamsToSort.size(); a++) {
+                if (teamsToSort.get(a).getStatisticalWins().compareTo(maxRecord) == 0 && !teamsToSort.get(a).isByeTeam()) {
+                    sameRecordArray.add(teamsToSort.get(a));
+                }
+            }
+
+            BigDecimal maxCS = new BigDecimal("0.0");
+            for (int a = 0; a < sameRecordArray.size(); a++) {
+                if (getTeamCS(sameRecordArray.get(a).getTeamNumber()).compareTo(maxCS) > 0) {
+                    maxCS = getTeamCS(sameRecordArray.get(a).getTeamNumber());
+                }
+            }
+            for (int a = 0; a < sameRecordArray.size(); a++) {
+                if (getTeamCS(sameRecordArray.get(a).getTeamNumber()).compareTo(maxCS) == 0) {
+                    sameCSArray.add(sameRecordArray.get(a));
+                    sameRecordArray.remove(a);
+                    a = -1;
+                }
+
+            }
+
+            int maxPD = -9999;
+            for (int a = 0; a < sameCSArray.size(); a++) {
+                if (sameCSArray.get(a).getPD() > maxPD) {
+                    maxPD = sameCSArray.get(a).getPD();
+                }
+            }
+            for (int a = 0; a < sameCSArray.size(); a++) {
+                if (sameCSArray.get(a).getPD() == maxPD) {
+                    samePDArray.add(sameCSArray.get(a));
+                    sameCSArray.remove(a);
+                    a = -1;
+                }
+
+            }
+            while (!samePDArray.isEmpty()) {
+                int teamNumberExtreme;
+                if (lowerTeamNumberIsHigherRank) {
+                    teamNumberExtreme = 10000;
+                    for (int a = 0; a < samePDArray.size(); a++) {
+                        if (samePDArray.get(a).getTeamNumber() < teamNumberExtreme) {
+                            teamNumberExtreme = samePDArray.get(a).getTeamNumber();
+                        }
+                    }
+                    for (int a = 0; a < samePDArray.size(); a++) {
+                        if (samePDArray.get(a).getTeamNumber() == teamNumberExtreme) {
+                            sortedTeams.add(samePDArray.get(a));
+                            teamsToSort.remove(samePDArray.get(a));
+                            samePDArray.remove(a);
+
+                        }
+                    }
+                } else {
+                    teamNumberExtreme = 0;
+                    for (int a = 0; a < samePDArray.size(); a++) {
+                        if (samePDArray.get(a).getTeamNumber() > teamNumberExtreme) {
+                            teamNumberExtreme = samePDArray.get(a).getTeamNumber();
+                        }
+                    }
+                    for (int a = 0; a < samePDArray.size(); a++) {
+                        if (samePDArray.get(a).getTeamNumber() == teamNumberExtreme) {
+                            sortedTeams.add(samePDArray.get(a));
+                            teamsToSort.remove(samePDArray.get(a));
+                            samePDArray.remove(a);
+                        }
+                    }
+                }
+            }
+        }
+        for(int i = 0;i<sortedTeams.size();i++){
+            final Team t = sortedTeams.get(i);
+            System.out.println(t.getTeamNumber()+" "+t.getStatisticalWins()+" "+getTeamCS(t.getTeamNumber())+" "+t.getPD());
+        }
+        return sortedTeams;
+    }
 
     public boolean isLowerTeamNumberIsHigherRank() {
         return lowerTeamNumberIsHigherRank;
@@ -679,9 +770,9 @@ public class Tournament implements Serializable {
     public int getTeamIndex(int teamNumber) {
         int index = 0;
         for (int a = 0; a < teams.size(); a++) {
-            if(teams.get(a).getTeamNumber() == teamNumber){
+            if (teams.get(a).getTeamNumber() == teamNumber) {
                 index = a;
-                a=teams.size();
+                a = teams.size();
             }
         }
         return index;
