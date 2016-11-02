@@ -870,7 +870,7 @@ public class MockTrialTabulation extends Application {
         FileChooser saveLocationChooser = new FileChooser();
         saveLocationChooser.setTitle("Generate Tab Summary");
         File saveLocation = saveLocationChooser.showSaveDialog(new Stage());
-        if(saveLocation != null && saveLocation.exists()){
+        if(saveLocation != null){
             TabSummaryWriter.createTabSummary(tournament, saveLocation);
         }
         

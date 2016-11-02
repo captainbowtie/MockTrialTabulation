@@ -160,42 +160,42 @@ public abstract class TabSummaryWriter {
             }
             if (team.getRound2Ballot1PD() > 0) {
                 row1.createCell(4).setCellValue("W");
-            } else if (team.getRound1Ballot1PD() < 0) {
+            } else if (team.getRound2Ballot1PD() < 0) {
                 row1.createCell(4).setCellValue("L");
             } else {
                 row1.createCell(4).setCellValue("T");
             }
             if (team.getRound2Ballot2PD() > 0) {
                 row1.createCell(6).setCellValue("W");
-            } else if (team.getRound1Ballot1PD() < 0) {
+            } else if (team.getRound2Ballot2PD() < 0) {
                 row1.createCell(6).setCellValue("L");
             } else {
                 row1.createCell(6).setCellValue("T");
             }
             if (team.getRound3Ballot1PD() > 0) {
                 row1.createCell(7).setCellValue("W");
-            } else if (team.getRound1Ballot1PD() < 0) {
+            } else if (team.getRound3Ballot1PD() < 0) {
                 row1.createCell(7).setCellValue("L");
             } else {
                 row1.createCell(7).setCellValue("T");
             }
             if (team.getRound3Ballot2PD() > 0) {
                 row1.createCell(9).setCellValue("W");
-            } else if (team.getRound1Ballot1PD() < 0) {
+            } else if (team.getRound3Ballot2PD() < 0) {
                 row1.createCell(9).setCellValue("L");
             } else {
                 row1.createCell(9).setCellValue("T");
             }
             if (team.getRound4Ballot1PD() > 0) {
                 row1.createCell(10).setCellValue("W");
-            } else if (team.getRound1Ballot1PD() < 0) {
+            } else if (team.getRound4Ballot1PD() < 0) {
                 row1.createCell(10).setCellValue("L");
             } else {
                 row1.createCell(10).setCellValue("T");
             }
             if (team.getRound4Ballot2PD() > 0) {
                 row1.createCell(12).setCellValue("W");
-            } else if (team.getRound1Ballot1PD() < 0) {
+            } else if (team.getRound4Ballot2PD() < 0) {
                 row1.createCell(12).setCellValue("L");
             } else {
                 row1.createCell(12).setCellValue("T");
@@ -210,10 +210,10 @@ public abstract class TabSummaryWriter {
             row2.createCell(12).setCellValue(team.getRound4Ballot2PD());
             row0.createCell(13).setCellValue(team.getWins() + " - " + team.getLoses() + " - " + team.getTies());
             row1.createCell(13).setCellValue("CS");
-            //row1.createCell(14).setCellValue("OCS");
+            row1.createCell(14).setCellValue("OCS");
             row1.createCell(15).setCellValue("PD");
             row2.createCell(13).setCellValue(tournament.getTeamCS(team.getTeamNumber()).toString());
-            //row2.createCell(14).setCellValue(tournament.getTeamOCS(team.getTeamNumber()).toString());
+            row2.createCell(14).setCellValue(tournament.getTeamOCS(team.getTeamNumber()).toString());
             row2.createCell(15).setCellValue(team.getPD());
             //Format cells
             //Team Number
@@ -415,6 +415,30 @@ public abstract class TabSummaryWriter {
                 csNumber.setFillPattern(CellStyle.SOLID_FOREGROUND);
             }
             row2.getCell(13).setCellStyle(csNumber);
+            //OCS text
+            CellStyle ocsText = wb.createCellStyle();
+            ocsText.setAlignment(CellStyle.ALIGN_CENTER);
+            if (a % 2.0 == 0) {
+                ocsText.setFillForegroundColor(IndexedColors.CORNFLOWER_BLUE.getIndex());
+                ocsText.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            } else {
+                ocsText.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
+                ocsText.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            }
+            row1.getCell(14).setCellStyle(ocsText);
+            //OCS number
+            CellStyle ocsNumber = wb.createCellStyle();
+            ocsNumber.setAlignment(CellStyle.ALIGN_CENTER);
+            ocsNumber.setBorderBottom(CellStyle.BORDER_THICK);
+            ocsNumber.setBottomBorderColor(IndexedColors.WHITE.getIndex());
+            if (a % 2.0 == 0) {
+                ocsNumber.setFillForegroundColor(IndexedColors.CORNFLOWER_BLUE.getIndex());
+                ocsNumber.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            } else {
+                ocsNumber.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
+                ocsNumber.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            }
+            row2.getCell(14).setCellStyle(ocsNumber);
             //PD text
             CellStyle pdText = wb.createCellStyle();
             pdText.setAlignment(CellStyle.ALIGN_CENTER);
@@ -451,7 +475,6 @@ public abstract class TabSummaryWriter {
             row1.createCell(5).setCellStyle(blankCellCenter);
             row1.createCell(8).setCellStyle(blankCellCenter);
             row1.createCell(11).setCellStyle(blankCellCenter);
-            row1.createCell(14).setCellStyle(blankCellCenter);
 
             CellStyle blankCellBottom = wb.createCellStyle();
             if (a % 2.0 == 0) {
@@ -467,9 +490,9 @@ public abstract class TabSummaryWriter {
             row2.createCell(5).setCellStyle(blankCellBottom);
             row2.createCell(8).setCellStyle(blankCellBottom);
             row2.createCell(11).setCellStyle(blankCellBottom);
-            row2.createCell(14).setCellStyle(blankCellBottom);
+            
         }
-        sheet.autoSizeColumn(0);
+        sheet.setColumnWidth(0,4650);
         sheet.setColumnWidth(1, 1323);
         sheet.autoSizeColumn(2);
         sheet.setColumnWidth(3, 1323);
@@ -483,7 +506,7 @@ public abstract class TabSummaryWriter {
         sheet.autoSizeColumn(11);
         sheet.setColumnWidth(12, 1323);
         sheet.autoSizeColumn(13);
-        sheet.setColumnWidth(14, 1);
+        sheet.autoSizeColumn(14);
         sheet.autoSizeColumn(15);
         //Team Placements
         int teamPlacementStart = tournament.getTeams().size() * 3 + 7;
@@ -494,7 +517,7 @@ public abstract class TabSummaryWriter {
             String cs = tournament.getTeamCS(team.getTeamNumber()).toString();
             String rankText = a + 1 + ") " + team.getTeamNumber() + " " + team.getTeamName() + " "
                     + team.getWins() + "-" + team.getLoses() + "-" + team.getTies() + " CS: "
-                    + tournament.getTeamCS(team.getTeamNumber()) + " PD: " + team.getPD();
+                    + tournament.getTeamCS(team.getTeamNumber()) + " OCS: "+tournament.getTeamOCS(team.getTeamNumber())+" PD: " + team.getPD();
             rankRow.createCell(0).setCellValue(rankText);
         }
         //Individual Awards
