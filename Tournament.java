@@ -662,6 +662,96 @@ public class Tournament implements Serializable {
                 }
             }
         }
+        return sortedTeams;
+    }
+    
+    public ArrayList<Team> placeTeams(ArrayList<Team> teams){
+        ArrayList<Team> teamsToSort = (ArrayList<Team>) teams.clone();
+        ArrayList<Team> sortedTeams = new ArrayList<>();
+        while (!teamsToSort.isEmpty()) {
+            ArrayList<Team> sameRecordArray = new ArrayList<>();
+            ArrayList<Team> sameCSArray = new ArrayList<>();
+            ArrayList<Team> sameOCSArray = new ArrayList<>();
+            ArrayList<Team> samePDArray = new ArrayList<>();
+            if (teamsToSort.size() == 1 && teamsToSort.get(0).isByeTeam()) {
+                sortedTeams.add(teamsToSort.get(0));
+                teamsToSort.remove(0);
+            }
+            BigDecimal maxRecord = new BigDecimal("0.0");
+            for (int a = 0; a < teamsToSort.size(); a++) {
+                if (maxRecord.compareTo(teamsToSort.get(a).getStatisticalWins()) < 0 && !teamsToSort.get(a).isByeTeam()) {
+                    maxRecord = teamsToSort.get(a).getStatisticalWins();
+                }
+            }
+            for (int a = 0; a < teamsToSort.size(); a++) {
+                if (teamsToSort.get(a).getStatisticalWins().compareTo(maxRecord) == 0 && !teamsToSort.get(a).isByeTeam()) {
+                    sameRecordArray.add(teamsToSort.get(a));
+                }
+            }
+
+            BigDecimal maxCS = new BigDecimal("0.0");
+            for (int a = 0; a < sameRecordArray.size(); a++) {
+                if (getTeamCS(sameRecordArray.get(a).getTeamNumber()).compareTo(maxCS) > 0) {
+                    maxCS = getTeamCS(sameRecordArray.get(a).getTeamNumber());
+                }
+            }
+            for (int a = 0; a < sameRecordArray.size(); a++) {
+                if (getTeamCS(sameRecordArray.get(a).getTeamNumber()).compareTo(maxCS) == 0) {
+                    sameCSArray.add(sameRecordArray.get(a));
+                    sameRecordArray.remove(a);
+                    a = -1;
+                }
+
+            }
+
+            int maxPD = -9999;
+            for (int a = 0; a < sameCSArray.size(); a++) {
+                if (sameCSArray.get(a).getPD() > maxPD) {
+                    maxPD = sameCSArray.get(a).getPD();
+                }
+            }
+            for (int a = 0; a < sameCSArray.size(); a++) {
+                if (sameCSArray.get(a).getPD() == maxPD) {
+                    samePDArray.add(sameCSArray.get(a));
+                    sameCSArray.remove(a);
+                    a = -1;
+                }
+
+            }
+            while (!samePDArray.isEmpty()) {
+                int teamNumberExtreme;
+                if (lowerTeamNumberIsHigherRank) {
+                    teamNumberExtreme = 10000;
+                    for (int a = 0; a < samePDArray.size(); a++) {
+                        if (samePDArray.get(a).getTeamNumber() < teamNumberExtreme) {
+                            teamNumberExtreme = samePDArray.get(a).getTeamNumber();
+                        }
+                    }
+                    for (int a = 0; a < samePDArray.size(); a++) {
+                        if (samePDArray.get(a).getTeamNumber() == teamNumberExtreme) {
+                            sortedTeams.add(samePDArray.get(a));
+                            teamsToSort.remove(samePDArray.get(a));
+                            samePDArray.remove(a);
+
+                        }
+                    }
+                } else {
+                    teamNumberExtreme = 0;
+                    for (int a = 0; a < samePDArray.size(); a++) {
+                        if (samePDArray.get(a).getTeamNumber() > teamNumberExtreme) {
+                            teamNumberExtreme = samePDArray.get(a).getTeamNumber();
+                        }
+                    }
+                    for (int a = 0; a < samePDArray.size(); a++) {
+                        if (samePDArray.get(a).getTeamNumber() == teamNumberExtreme) {
+                            sortedTeams.add(samePDArray.get(a));
+                            teamsToSort.remove(samePDArray.get(a));
+                            samePDArray.remove(a);
+                        }
+                    }
+                }
+            }
+        }
         for(int i = 0;i<sortedTeams.size();i++){
             final Team t = sortedTeams.get(i);
             System.out.println(t.getTeamNumber()+" "+t.getStatisticalWins()+" "+getTeamCS(t.getTeamNumber())+" "+t.getPD());
